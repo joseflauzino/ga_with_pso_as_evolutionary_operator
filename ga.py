@@ -217,6 +217,8 @@ class GA:
         # Sorts initial population
         population = self.sort_pop(population)
 
+        individual_for_generation = []
+
         for g in range(self.generations):
             # Generating the offspring
             offspring = self.crossover(population)
@@ -237,5 +239,9 @@ class GA:
 
             # Saves generation best fitness
             gen_best_fitnesses.append(population[0]['fitness'])
+            test = []
+            for index in range(len(population)):
+                test.append(population[index]['chromosome'])
+            individual_for_generation.append(test)
 
-        return population[0]['fitness'], gen_best_fitnesses
+        return population[0]['fitness'], gen_best_fitnesses, individual_for_generation
