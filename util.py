@@ -1,4 +1,5 @@
 from statistics import mean
+from functions import sphere, rastringin, ackley
 
 # Hamming distance
 def hammingDistance(str1, str2):
@@ -24,3 +25,13 @@ def calculate_polulation_distance(generations):
     avg_distances_per_generation.append(mean(p))
 
   return avg_distances_per_generation
+
+def get_function_and_bounds(function_name: str):
+  if function_name.lower() == 'sphere':
+     return sphere, [(-5, 5), (-5, 5), (-5, 5)]
+  if function_name.lower() == 'rastringin':
+     return rastringin, [(-5.12, 5.12), (-5.12, 5.12), (-5.12, 5.12)]
+  if function_name.lower() == 'ackley':
+     return ackley, [(-5, 5), (-5, 5), (-5, 5)]
+  else:
+     raise "Invalid function name"

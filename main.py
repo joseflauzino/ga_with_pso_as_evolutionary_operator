@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 
 from ga import GA
 from util import *
-from functions import sphere, rastringin, ackley
-
-bounds = [(-5, 5), (-5, 5), (-5, 5)]
 
 # usage: python main.py <function>
 if len(sys.argv) < 2:
@@ -14,10 +11,8 @@ if len(sys.argv) < 2:
   sys.exit()
 
 function_arg = sys.argv[1]
-print('Function:', function_arg)
-function = sphere #TODO: atribuir o valor da variavel function de acordo com o arg passado
-function_name = function.__name__.title()
-#TODO: atribuir o valor da variavel bounds de acordo com o valor da variavel function (ou seja, de acordo com a funcao)
+function, bounds = get_function_and_bounds(function_arg)
+function_name = function_arg.title()
 
 results = []
 particle_number = []
@@ -42,6 +37,7 @@ print('Plotting Fitness vs Population Size...')
 plt.figure(figsize=(10, 7))
 plt.boxplot(results)
 plt.xticks(range(1, len(results) + 1), particle_number)
+plt.yticks(np.arange(0, 11, step=1))
 plt.title(function_name)
 plt.ylabel("Fitness")
 plt.xlabel("Population Size")
