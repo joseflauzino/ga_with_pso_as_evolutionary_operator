@@ -45,7 +45,7 @@ class GA:
         float_values = [bin_to_float(v) for v in binary_values]
 
         for i, val in enumerate(float_values):
-            if isnan(val):                
+            if isnan(val):
                 value = random.uniform(self.bounds[i][0], self.bounds[i][1])
                 chromosome += float_to_bin(value)
             elif val < self.bounds[i][0]:
@@ -54,7 +54,7 @@ class GA:
                 chromosome += float_to_bin(self.bounds[i][1])
             else:
                 chromosome += float_to_bin(val)
-       
+
             individual['chromosome'] = chromosome
 
     def gen_individual(self):
@@ -120,7 +120,7 @@ class GA:
     def two_point_cx(self, ind1, ind2):
         """ Two Point Crossover """
         ch_len = len(ind1['chromosome'])
-        #crossover points
+        # crossover points
         point1 = random.randrange(1, ch_len)
         point2 = random.randrange(point1, ch_len)
 
@@ -239,6 +239,7 @@ class GA:
 
             # Saves generation best fitness
             gen_best_fitnesses.append(population[0]['fitness'])
+
             test = []
             for index in range(len(population)):
                 test.append(population[index]['chromosome'])

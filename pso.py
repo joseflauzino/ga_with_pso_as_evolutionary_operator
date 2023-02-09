@@ -175,8 +175,8 @@ if __name__ == "__PSO__":
 # --- RUN ----------------------------------------------------------------------+
 
 # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
-#bounds = [(-10, 10), (-10, 10), (-10, 10), (-1, 1)]
-#pso = PSO(func1, bounds, num_particles=15, maxiter=30)
+# bounds = [(-10, 10), (-10, 10), (-10, 10), (-1, 1)]
+# pso = PSO(func1, bounds, num_particles=15, maxiter=30)
 
 # pso.run()
 
