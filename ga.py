@@ -1,28 +1,21 @@
-import struct
 import random
 import textwrap
 import numpy as np
 import random
 from math import isnan
 from functions import sphere, rastringin, ackley
-
-
-def float_to_bin(num):
-    return format(struct.unpack('!I', struct.pack('!f', num))[0], '032b')
-
-
-def bin_to_float(binary):
-    return struct.unpack('!f', struct.pack('!I', int(binary, 2)))[0]
-
+from pso_based_mutation import PSO_Mutation
+from util import *
 
 class GA:
-    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='two-point', mt_prob=0, sel_strategy='elitist'):
+    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='two-point', mt_prob=0, sel_strategy='elitist', pso_mutation=False):
         self.generations = generations      # Number of generations
         self.pop_size = pop_size            # Population size
         self.cx_prob = cx_prob              # Probability of two parents procreate
         self.fun = fun                      # Function to optimize
         self.bounds = bounds                # Problem boundaries
         self.mt_prob = mt_prob              # Probability that a bit is flipped over
+        self.pso_mutation = pso_mutation    # Toggle PSO-based mutation
 
         if cx_strategy == 'one-point':
             self.cx_strategy = self.one_point_cx
@@ -94,6 +87,10 @@ class GA:
             individual['chromosome'] = chromosome_mutated
             self.validate_individual(individual)
         return population
+    
+    def mutate_using_pso(self, population):
+        pso = PSO_Mutation(population, self.fun, self.bounds)
+        return pso.run()
 
     def one_point_cx(self, ind1, ind2):
         """ One point crossover """
@@ -230,9 +227,12 @@ class GA:
             for i in range(self.pop_size):
                 population[i]['chosen'] = False
 
-            if self.mt_prob > 0:
-                # Perform evolutionary operations (mutation, etc.)
-                population = self.mutate(population)
+            if self.pso_mutation:
+                population = self.mutate_using_pso(population)
+            else:
+                if self.mt_prob > 0:
+                    # Perform evolutionary operations (mutation, etc.)
+                    population = self.mutate(population)
 
             # Sorts population
             population = self.sort_pop(population)

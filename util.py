@@ -1,5 +1,6 @@
 from statistics import mean
 from functions import sphere, rastringin, ackley
+import struct
 
 # Hamming distance
 def hammingDistance(str1, str2):
@@ -35,3 +36,11 @@ def get_function_and_bounds(function_name: str):
      return ackley, [(-5, 5), (-5, 5), (-5, 5)]
   else:
      raise "Invalid function name"
+  
+def float_to_bin(num):
+    return format(struct.unpack('!I', struct.pack('!f', num))[0], '032b')
+
+
+def bin_to_float(binary):
+    return struct.unpack('!f', struct.pack('!I', int(binary, 2)))[0]
+    

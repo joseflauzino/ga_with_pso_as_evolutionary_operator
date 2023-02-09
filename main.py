@@ -20,10 +20,10 @@ particle_number = []
 print('Optimizing the', function_name, 'function...')
 # varying the number of chromosomes
 for n in range(30, 101, 10):
-  ga = GA(function, bounds, pop_size=n)
+  ga = GA(function, bounds, pop_size=n, mt_prob=0.4, pso_mutation=True)
   partial_results = []
   # executing the algorithm 30 times
-  for i in range(30):
+  for i in range(1):
     execution, _, chromosome_list = ga.run()
     partial_results.append(execution)
   if n == 50:
