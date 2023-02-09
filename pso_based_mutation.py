@@ -5,6 +5,8 @@ import numpy as np
 from operator import itemgetter
 from util import *
 
+#TODO: verificar se quando rod o PSO ele mantem individuos iguais
+
 class Particle:
     def __init__(self, x0, inertia, constriction):
         self.position_i = []              # particle position
@@ -26,6 +28,7 @@ class Particle:
         self.fitness_i = costFunc(self.position_i)
 
         # check to see if the current position is an individual best
+        #TODO: verificar se o np.inf retira o or
         if self.fitness_i < self.fitness_best_i or self.fitness_best_i == -1:
             self.pos_best_i = self.position_i
             self.fitness_best_i = self.fitness_i
@@ -97,6 +100,7 @@ class PSO_Mutation():
         self.inertia = inertia
         self.constriction = constriction
 
+    #TODO: debugar bem essa parte do código, parece que tá "escapando" o for e executando to_swarm várias vezes
     def to_swarm(self, population):
         """ Converts individuals of a population into particles of a swarm """
 
@@ -143,8 +147,10 @@ class PSO_Mutation():
         # establishes the swarm
         swarm = []
         initial_positions, global_best_solution, global_best_fitness = self.to_swarm(self.ga_population)
+        #TODO: verificar se faz sentido criar novas variáveis
         pos_best_g = global_best_solution
         fitness_best_g = global_best_fitness
+        #TODO: veriicar se esse for não dá pra ser feito dentro da função to_swarm
         for i in range(0, len(self.ga_population)):
             swarm.append(Particle(initial_positions[i], self.inertia, self.constriction))
 
@@ -161,6 +167,7 @@ class PSO_Mutation():
                     fitness_best_g = float(swarm[j].fitness_i)
 
                 # find ordered list of neighbors (by distance from closest to farthest
+                #Tá considerando todas as particluas como um único enxame, ou seja, não tem separação de global e local
                 if self.num_neighbors >= 0:
                     for k in range(0, len(self.ga_population)):
                         if swarm[j] is not swarm[k]:
