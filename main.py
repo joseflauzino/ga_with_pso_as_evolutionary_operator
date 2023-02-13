@@ -16,11 +16,11 @@ def main(function_name, function, bounds):
     print('Optimizing the', function_name, 'function...')
     # varying the number of chromosomes
     for n in range(30, 101, 10):
-        ga = GA(function, bounds, pop_size=n, mt_prob=0.2, pso_mutation=True)
+        ga = GA(function, bounds, pop_size=n, mt_prob=0.2, pso_mutation=True, with_inertia=True)
         partial_results = []
         best_fitness_t = np.inf
         # executing the algorithm 30 times
-        for i in range(1):
+        for i in range(30):
             execution, best_fitness, chromosome_list = ga.run()
             partial_results.append(execution)
             best_fitness.sort()

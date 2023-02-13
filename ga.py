@@ -1,14 +1,13 @@
 import random
 import textwrap
 import numpy as np
-import random
 from math import isnan
-from functions import sphere, rastringin, ackley
 from pso_based_mutation import PSO_Mutation
 from util import *
 
+
 class GA:
-    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='two-point', mt_prob=0, sel_strategy='elitist', pso_mutation=False):
+    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='two-point', mt_prob=0, sel_strategy='elitist', pso_mutation=False, with_inertia=True):
         self.generations = generations      # Number of generations
         self.pop_size = pop_size            # Population size
         self.cx_prob = cx_prob              # Probability of two parents procreate
@@ -16,6 +15,7 @@ class GA:
         self.bounds = bounds                # Problem boundaries
         self.mt_prob = mt_prob              # Probability that a bit is flipped over
         self.pso_mutation = pso_mutation    # Toggle PSO-based mutation
+        self.with_inertia = with_inertia
 
         if cx_strategy == 'one-point':
             self.cx_strategy = self.one_point_cx
@@ -87,9 +87,9 @@ class GA:
             individual['chromosome'] = chromosome_mutated
             self.validate_individual(individual)
         return population
-    
+
     def mutate_using_pso(self, population):
-        pso = PSO_Mutation(population, self.fun, self.bounds)
+        pso = PSO_Mutation(population, self.fun, self.bounds, self.with_inertia)
         return pso.run()
 
     def one_point_cx(self, ind1, ind2):
@@ -200,9 +200,9 @@ class GA:
 
     def run(self):
         # Initialize the population
-        population = [{'chromosome': self.gen_individual(), 'fitness': -np.inf,
-                       'inv_fitness': -np.inf, 'norm_fitness': -np.inf,
-                       'cumulative_fitness': -np.inf, 'chosen': False}
+        population = [{'chromosome': self.gen_individual(), 'fitness': np.inf,
+                       'inv_fitness': np.inf, 'norm_fitness': np.inf,
+                       'cumulative_fitness': np.inf, 'chosen': False}
                       for x in range(self.pop_size)]
 
         # Initializing array for best fitness in each generation
@@ -228,7 +228,8 @@ class GA:
                 population[i]['chosen'] = False
 
             if self.pso_mutation:
-                population = self.mutate_using_pso(population)
+                if random.random() < self.mt_prob:
+                    population = self.mutate_using_pso(population)
             else:
                 if self.mt_prob > 0:
                     # Perform evolutionary operations (mutation, etc.)
