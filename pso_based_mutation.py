@@ -14,7 +14,7 @@ class Particle:
         self.velocity_i = []              # particle velocity (v_i)
         self.fitness_i = fitness          # fitness individual
         self.best_pos_i = []              # best position individual (p_i)
-        self.best_fitness_i = np.inf      # best fitness individual
+        self.best_fitness_i = np.inf      # best fitness individual (f_p_i)
         self.neighbors = []               # list of other particles ordered by proximity
         # best position social/group (p_g)
         self.best_pos_g = global_best_solution
@@ -83,21 +83,16 @@ class Particle:
         return distance
 
     # find best position locally, using neighbors (local topology only)
-    def find_best_neighbors(self, swarm, topology):
-        if topology == "ring":
-            for p_n in self.neighbors:
-                if swarm[p_n].fitness_i < self.best_fitness_g:
-                    self.best_pos_g = swarm[p_n].position_i
-                    self.best_fitness_g = swarm[p_n].fitness_i
-        else:
-            for p_n in swarm:
-                if p_n.fitness_i < self.best_fitness_g:
-                    self.best_pos_g = p_n.position_i
-                    self.best_fitness_g = p_n.fitness_i
-
+    def find_best_neighbors(self, swarm):
+        best_fitness = np.inf
+        for p_n in self.neighbors:
+            if swarm[p_n].best_fitness_g < best_fitness:
+                best_fitness = swarm[p_n].best_fitness_g
+                self.best_pos_g = swarm[p_n].best_pos_g
+                self.best_fitness_g = swarm[p_n].best_fitness_g
 
 class PSO_Mutation():
-    def __init__(self, ga_population, costFunc, bounds, topology='', maxiter=1, inertia=0.5, constriction=False, with_inertia=True):
+    def __init__(self, ga_population, costFunc, bounds, topology='', maxiter=100, inertia=0.5, constriction=False, with_inertia=True):
         global num_dimensions
         num_dimensions = len(bounds)
         # genetic algorithm population sorted in ascending order based on fitness
@@ -127,6 +122,7 @@ class PSO_Mutation():
         global_best_solution = chromosome_to_postition(
             population[0])   
         global_best_fitness = population[0]['fitness']
+        print("Best fitness global: ", global_best_fitness)
 
         for individual in population:
             i_position = chromosome_to_postition(individual)
@@ -134,7 +130,7 @@ class PSO_Mutation():
                 i_position, individual['fitness'], global_best_solution, global_best_fitness, self.inertia, self.constriction, self.with_inertia))
         return swarm
 
-    def get_neighbors(self, swarm):
+    def set_neighbors(self, swarm):
         N = len(swarm)
         if self.topology == "ring":
             list_neighbors = (
@@ -168,20 +164,22 @@ class PSO_Mutation():
         # establishes the swarm
         swarm: List[Particle] = self.to_swarm(self.ga_population)
 
-        # establishes the neighborhood of the particle
-        self.get_neighbors(swarm)
-
+        # establishes the neighborhood of each particle
+        self.set_neighbors(swarm)
+        test_best_fitness = swarm[0].best_fitness_g
+        print("besti fitness inicial", test_best_fitness)
         # begin optimization loop
         for i in range(self.maxiter):
 
             # cycle through particles in swarm and evaluate fitness
             for x_i in range(len(swarm)):
                 swarm[x_i].evaluate(self.costFunc)
-
-                swarm[x_i].find_best_neighbors(swarm, self.topology)
+                swarm[x_i].find_best_neighbors(swarm)
+                if test_best_fitness > swarm[x_i].best_fitness_g:
+                    test_best_fitness = swarm[x_i].best_fitness_g
                 swarm[x_i].update_velocity()
                 swarm[x_i].update_position(self.bounds)
-
+        print("besti fitness final", test_best_fitness)
         # return the individuals representing the childs (i.e., the 'mutated' individuals)
         return self.to_individuals(swarm)
 
