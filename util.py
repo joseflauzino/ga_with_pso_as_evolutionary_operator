@@ -13,7 +13,7 @@ def hammingDistance(str1, str2):
     return count
 
 
-def calculate_polulation_distance(generations):
+def calculate_population_distance(generations):
     distances_per_generation = []
     for population in generations:
         distances_per_population = []

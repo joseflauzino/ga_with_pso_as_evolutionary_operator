@@ -16,18 +16,18 @@ def main(function_name, function, bounds):
     print('Optimizing the', function_name, 'function...')
     # varying the number of chromosomes
     for n in range(30, 101, 10):
-        ga = GA(function, bounds, pop_size=n)
+        ga = GA(function, bounds, pop_size=n, mt_prob=0.2, pso_mutation=True)
         partial_results = []
         best_fitness_t = np.inf
         # executing the algorithm 30 times
-        for i in range(30):
+        for i in range(1):
             execution, best_fitness, chromosome_list = ga.run()
             partial_results.append(execution)
             best_fitness.sort()
             if best_fitness_t > best_fitness[0]:
                 best_fitness_t = best_fitness[0]
         if n == 50:
-            result_distance = calculate_polulation_distance(chromosome_list)
+            result_distance = calculate_population_distance(chromosome_list)
 
         particle_number.append(n)
         results.append(partial_results)
@@ -40,7 +40,7 @@ def main(function_name, function, bounds):
     plt.plot(results_mean, 'ro')
     plt.plot(results_best_fitness, 'b^')
     plt.xticks(range(1, len(results) + 1), particle_number)
-    plt.yticks(np.arange(0, 1, step=0.5))
+    plt.yticks(np.arange(0, 0.1, step=0.05))
     plt.title(function_name)
     plt.ylabel("Fitness")
     plt.xlabel("Population Size")
