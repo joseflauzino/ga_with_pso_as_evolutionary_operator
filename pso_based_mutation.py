@@ -5,8 +5,6 @@ import numpy as np
 from operator import itemgetter
 from util import *
 
-# TODO: verificar se quando rod o PSO ele mantem individuos iguais
-
 
 class Particle:
     def __init__(self, x0, fitness, global_best_solution, global_best_fitness, inertia, constriction, with_inertia):
@@ -92,7 +90,7 @@ class Particle:
                 self.best_fitness_g = swarm[p_n].best_fitness_g
 
 class PSO_Mutation():
-    def __init__(self, ga_population, costFunc, bounds, topology='', maxiter=100, inertia=0.5, constriction=False, with_inertia=True):
+    def __init__(self, ga_population, costFunc, bounds, topology='', maxiter=10, inertia=0.5, constriction=False, with_inertia=True):
         global num_dimensions
         num_dimensions = len(bounds)
         # genetic algorithm population sorted in ascending order based on fitness
@@ -122,7 +120,6 @@ class PSO_Mutation():
         global_best_solution = chromosome_to_postition(
             population[0])   
         global_best_fitness = population[0]['fitness']
-        print("Best fitness global: ", global_best_fitness)
 
         for individual in population:
             i_position = chromosome_to_postition(individual)
@@ -166,8 +163,7 @@ class PSO_Mutation():
 
         # establishes the neighborhood of each particle
         self.set_neighbors(swarm)
-        test_best_fitness = swarm[0].best_fitness_g
-        print("besti fitness inicial", test_best_fitness)
+
         # begin optimization loop
         for i in range(self.maxiter):
 
@@ -175,11 +171,9 @@ class PSO_Mutation():
             for x_i in range(len(swarm)):
                 swarm[x_i].evaluate(self.costFunc)
                 swarm[x_i].find_best_neighbors(swarm)
-                if test_best_fitness > swarm[x_i].best_fitness_g:
-                    test_best_fitness = swarm[x_i].best_fitness_g
                 swarm[x_i].update_velocity()
                 swarm[x_i].update_position(self.bounds)
-        print("besti fitness final", test_best_fitness)
+
         # return the individuals representing the childs (i.e., the 'mutated' individuals)
         return self.to_individuals(swarm)
 
