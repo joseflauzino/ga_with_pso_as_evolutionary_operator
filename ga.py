@@ -7,7 +7,7 @@ from util import *
 
 
 class GA:
-    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=.85, cx_strategy='two-point', mt_prob=0, sel_strategy='elitist', pso_mutation=False, with_inertia=True):
+    def __init__(self, fun, bounds, generations=100, pop_size=50, cx_prob=0.4, cx_strategy='two-point', mt_prob=0, sel_strategy='elitist', pso_mutation=False, with_inertia=True, topology='', max_iter=1):
         self.generations = generations      # Number of generations
         self.pop_size = pop_size            # Population size
         self.cx_prob = cx_prob              # Probability of two parents procreate
@@ -16,6 +16,8 @@ class GA:
         self.mt_prob = mt_prob              # Probability that a bit is flipped over
         self.pso_mutation = pso_mutation    # Toggle PSO-based mutation
         self.with_inertia = with_inertia
+        self.topology = topology
+        self.max_iter = max_iter
 
         if cx_strategy == 'one-point':
             self.cx_strategy = self.one_point_cx
@@ -89,7 +91,7 @@ class GA:
         return population
 
     def mutate_using_pso(self, population):
-        pso = PSO_Mutation(population, self.fun, self.bounds, self.with_inertia)
+        pso = PSO_Mutation(population, self.fun, self.bounds, topology=self.topology, with_inertia=self.with_inertia, max_iter=self.max_iter)
         return pso.run()
 
     def one_point_cx(self, ind1, ind2):
@@ -190,7 +192,7 @@ class GA:
     def crossover(self, population):
         """ Performs crossover into a population until a offspring with (pop_size) individuals is completed """
         offspring = []
-        while len(offspring) < self.pop_size:
+        while len(offspring) < self.pop_size and self.cx_prob > 0.0:
             parent1, parent2 = self.parents_selection(population)
             if random.random() < self.cx_prob:
                 child1, child2 = self.cx_strategy(parent1, parent2)
@@ -228,7 +230,8 @@ class GA:
                 population[i]['chosen'] = False
 
             if self.pso_mutation:
-                if random.random() < self.mt_prob:
+                if len(set(gen_best_fitnesses[-3:])) == 1:
+                #if random.random() < self.mt_prob:
                     population = self.mutate_using_pso(population)
             else:
                 if self.mt_prob > 0:

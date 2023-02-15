@@ -1,3 +1,4 @@
+from copy import copy
 import random
 import textwrap
 from typing import List
@@ -35,8 +36,8 @@ class Particle:
 
         # check to see if the current position is an individual best
         if self.fitness_i < self.best_fitness_i:
-            self.best_pos_i = self.position_i
-            self.best_fitness_i = self.fitness_i
+            self.best_pos_i = self.position_i.copy()
+            self.best_fitness_i = copy(self.fitness_i)
 
     # update new particle velocity
     def update_velocity(self):
@@ -73,24 +74,17 @@ class Particle:
             if self.position_i[i] < bounds[i][0]:
                 self.position_i[i] = bounds[i][0]
 
-    # calculate euclidian distance between 2 particles
-    def euclidian_distance(self, other_particle):
-        coord_self = np.array(self.position_i)
-        coord_other = np.array(other_particle.position_i)
-        distance = np.linalg.norm(coord_self - coord_other)
-        return distance
-
     # find best position locally, using neighbors (local topology only)
     def find_best_neighbors(self, swarm):
         best_fitness = np.inf
         for p_n in self.neighbors:
             if swarm[p_n].best_fitness_g < best_fitness:
                 best_fitness = swarm[p_n].best_fitness_g
-                self.best_pos_g = swarm[p_n].best_pos_g
-                self.best_fitness_g = swarm[p_n].best_fitness_g
+                self.best_pos_g = swarm[p_n].best_pos_g.copy()
+                self.best_fitness_g = copy(swarm[p_n].best_fitness_g)
 
 class PSO_Mutation():
-    def __init__(self, ga_population, costFunc, bounds, topology='', maxiter=10, inertia=0.5, constriction=False, with_inertia=True):
+    def __init__(self, ga_population, costFunc, bounds, max_iter=1, inertia=0.5, constriction=False, with_inertia=True, topology=''):
         global num_dimensions
         num_dimensions = len(bounds)
         # genetic algorithm population sorted in ascending order based on fitness
@@ -98,11 +92,11 @@ class PSO_Mutation():
         # the function to be optimized (fitness)
         self.costFunc = costFunc
         self.bounds = bounds
-        self.maxiter = maxiter
-        self.topology = str(topology).lower()
+        self.max_iter = max_iter
         self.inertia = inertia
         self.constriction = constriction
         self.with_inertia = with_inertia
+        self.topology = str(topology).lower()
 
     def to_swarm(self, population):
         """ Converts individuals of a population into particles of a swarm """
@@ -124,7 +118,7 @@ class PSO_Mutation():
         for individual in population:
             i_position = chromosome_to_postition(individual)
             swarm.append(Particle(
-                i_position, individual['fitness'], global_best_solution, global_best_fitness, self.inertia, self.constriction, self.with_inertia))
+                i_position, individual['fitness'], global_best_solution.copy(), global_best_fitness, self.inertia, self.constriction, self.with_inertia))
         return swarm
 
     def set_neighbors(self, swarm):
@@ -133,7 +127,7 @@ class PSO_Mutation():
             list_neighbors = (
                 np.array([np.arange(3) for _ in range(N)]) + np.arange(N)[:, None] - 1) % N
             for index, particle in enumerate(swarm):
-                particle.neighbors = list_neighbors[index]
+                particle.neighbors = list_neighbors[index].copy()
         else:
             list_neighbors = list(range(0, N))
             for index, particle in enumerate(swarm):
@@ -165,7 +159,7 @@ class PSO_Mutation():
         self.set_neighbors(swarm)
 
         # begin optimization loop
-        for i in range(self.maxiter):
+        for i in range(self.max_iter):
 
             # cycle through particles in swarm and evaluate fitness
             for x_i in range(len(swarm)):
