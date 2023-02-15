@@ -357,19 +357,19 @@ def social(function_name, function, bounds):
     
     #zoom
     N = 20
-    upper_limit = max(max(gen_mean_inertia_false[N:]), max(gen_mean_inertia_true[N:]), max(gen_mean_ga[N:]), max(gen_std_inertia_false[N:]), max(gen_std_inertia_true[N:]), max(gen_std_ga[N:]))
-    
+    upper_limit = max(max(gen_mean_inertia_false[N:]), max(gen_mean_inertia_true[N:]), max(gen_mean_ga[N:]))
+    upper_limit += (upper_limit/10)
  
     plt.figure(figsize=(16, 9))
     plt.ylim(0, upper_limit)
-    plt.plot(gen_mean_inertia_false, 'bo')
+    plt.plot(gen_mean_inertia_false, 'b+')
     plt.plot(gen_mean_inertia_true, 'ro')
-    plt.plot(gen_mean_ga, 'go')
+    plt.plot(gen_mean_ga, 'gx')
     plt.xlim(20, 101)
-    plt.title(f'{function_name} - Global x Local')
-    plt.ylabel("Fitness")
+    plt.title(f'{function_name} - Ignore Cognitive Component x With Cognitive Component')
+    plt.ylabel("Average Fitness")
     plt.xlabel("Generation")
-    plt.legend(['Ignore Social', 'With Social',
+    plt.legend(['Ignore Cognitive', 'With Cognitive',
             'Genetic Algorithm'], loc=0)
 
     plt.savefig(

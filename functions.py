@@ -31,7 +31,7 @@ def eggholder(x):
 
 def drop_wave(x):
     x1 = x[0]
-    x2 = x[1]
+    x2 = x[1] if len(x) > 1 else 0
     b=0.5*(x1*x1+x2*x2)+2
     a=-(1+np.cos(12*np.sqrt(x1*x1+x2*x2)))/b
     return a
