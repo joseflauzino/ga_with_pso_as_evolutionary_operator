@@ -1,5 +1,5 @@
 from statistics import mean
-from functions import sphere, rastringin, ackley
+from functions import *
 import struct
 
 
@@ -31,11 +31,15 @@ def calculate_population_distance(generations):
 
 def get_function_and_bounds(function_name: str):
     if function_name.lower() == 'sphere':
-        return 'Sphere', sphere, [(-5, 5), (-5, 5), (-5, 5)]
+        return 'Sphere', sphere, [(-5.12, 5.12)]
     if function_name.lower() == 'rastringin':
-        return 'Rastringin', rastringin, [(-5.12, 5.12), (-5.12, 5.12), (-5.12, 5.12)]
+        return 'Rastringin', rastringin, [(-5.12, 5.12)]
     if function_name.lower() == 'ackley':
-        return 'Ackley', ackley, [(-5, 5), (-5, 5), (-5, 5)]
+        return 'Ackley', ackley, [(-32.768, 32.768)]
+    if function_name.lower() == 'eggholder':
+        return 'Eggholder', eggholder, [(-512, 512)]
+    if function_name.lower() == 'drop_wave':
+        return 'Drop Wave', drop_wave, [(-5.12, 5.12)]
     else:
         raise "Invalid function name"
 
