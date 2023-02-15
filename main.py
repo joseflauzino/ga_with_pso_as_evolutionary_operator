@@ -357,38 +357,30 @@ def social(function_name, function, bounds):
     
     #zoom
     N = 20
-    gen_mean_inertia_false_small = gen_mean_inertia_false[N:]
-    gen_mean_inertia_true_small = gen_mean_inertia_true[N:]
-    gen_mean_ga_small = gen_mean_ga[N:]
-
-    gen_std_inertia_false_small = gen_std_inertia_false[N:]
-    gen_std_inertia_true_small = gen_std_inertia_true[N:]
-    gen_std_ga_small = gen_std_ga[N:]
-
-    upper_limit = max(gen_mean_inertia_false[N], gen_mean_inertia_true[N], gen_mean_ga[N]) + \
-        max(gen_std_inertia_false[N], gen_std_inertia_true[N], gen_std_ga[N])
+    upper_limit = max(max(gen_mean_inertia_false[N:]), max(gen_mean_inertia_true[N:]), max(gen_mean_ga[N:]), max(gen_std_inertia_false[N:]), max(gen_std_inertia_true[N:]), max(gen_std_ga[N:]))
     
+ 
     plt.figure(figsize=(16, 9))
     plt.ylim(0, upper_limit)
-    plt.errorbar(x_zoom, np.array(gen_mean_inertia_false_small), np.array(gen_std_inertia_false_small), ms=ms, lw=lw, marker="o",
-                 capsize=capsize, ecolor="blue", elinewidth=elw, label='Ignore Social')
-    plt.errorbar(x_zoom, np.array(gen_mean_inertia_true_small), np.array(gen_std_inertia_true_small), ms=ms, lw=lw, ls='--',
-                 marker="s", capsize=capsize, color="r", ecolor="r", elinewidth=elw, label='With Social', alpha=0.7)
-    plt.errorbar(x_zoom, np.array(gen_mean_ga_small), np.array(gen_std_ga_small), ms=ms, lw=lw, ls='--',
-                 marker="*", capsize=capsize, color="g", ecolor="g", elinewidth=elw, label='Genetic Algorithm', alpha=0.7)
+    plt.plot(gen_mean_inertia_false, 'bo')
+    plt.plot(gen_mean_inertia_true, 'ro')
+    plt.plot(gen_mean_ga, 'go')
+    plt.xlim(20, 101)
     plt.title(f'{function_name} - Global x Local')
     plt.ylabel("Fitness")
     plt.xlabel("Generation")
-    plt.legend(loc='upper right', prop={'size': 16})
+    plt.legend(['Ignore Social', 'With Social',
+            'Genetic Algorithm'], loc=0)
 
     plt.savefig(
         "imgs/social-zoom(" + function_name + ").png")
+    
 
 
 def main(function_name, function, bounds):
-    #population_size(function_name, function, bounds)
-    #mutation(function_name, function, bounds)
-    #topology(function_name, function, bounds)
+    population_size(function_name, function, bounds)
+    mutation(function_name, function, bounds)
+    topology(function_name, function, bounds)
     social(function_name, function, bounds)
 
 
