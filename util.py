@@ -55,3 +55,9 @@ def float_to_bin(num):
 def bin_to_float(binary):
     return struct.unpack('!f', struct.pack('!I', int(binary, 2)))[0]
     
+
+def read_input():
+    pass
+
+def save_output():
+    pass

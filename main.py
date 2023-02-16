@@ -122,8 +122,8 @@ def population_size(function_name, function, bounds, global_minimum):
     step = abs(max_y/10)
     plt.yticks(np.arange(global_minimum, max_y+step, step=step))
     plt.title(function_name)
-    plt.ylabel("Fitness")
-    plt.xlabel("Population Size")
+    plt.ylabel("Fitness Média")
+    plt.xlabel("Tamanho da População")
     plt.legend(['Fitness Média GA-PSO', 'Melhor Fitness GA-PSO',
                'Fitness Média GA', 'Melhor Fitness GA'], loc=0)
     plt.savefig("imgs/" + function_name +
@@ -140,8 +140,8 @@ def population_size(function_name, function, bounds, global_minimum):
     plt.figure(figsize=(10, 7))
     plt.plot(result_distance, 'ro')
     plt.title(function_name)
-    plt.ylabel("Average Distance")
-    plt.xlabel("Generation")
+    plt.ylabel("Distância Média")
+    plt.xlabel("Geração")
     plt.yticks(np.arange(0, 110, step=10))
     plt.savefig(
         "imgs/" + function_name + "/average_distance_over_generations(" + function_name + ").png")
@@ -204,12 +204,12 @@ def mutation(function_name, function, bounds, global_minimum):
     upper_limit = max(gen_mean_m[0], gen_mean_n[0], gen_mean_pso_m[0])
     plt.figure(figsize=(16, 9))
     plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean_n, 'bo', label="No Mutation")
-    plt.plot(gen_mean_m, 'rx', label="Mutation")
-    plt.plot(gen_mean_pso_m, 'g+', label=" PSO-Mutation")
-    plt.title(f'{function_name} - No Mutation X Mutation')
-    plt.ylabel("Fitness")
-    plt.xlabel("Generation")
+    plt.plot(gen_mean_n, 'bo', label="SEM Mutação")
+    plt.plot(gen_mean_m, 'rx', label="COM Mutação")
+    plt.plot(gen_mean_pso_m, 'g+', label="COM Mutação - PSO")
+    plt.title(f'{function_name} - SEM Mutação X COM Mutação')
+    plt.ylabel("Fitness Média")
+    plt.xlabel("Geração")
     plt.legend(loc='upper right', prop={'size': 16})
     plt.savefig(
         "imgs/" + function_name + "/mutation(" + function_name + ").png")
@@ -262,11 +262,11 @@ def topology(function_name, function, bounds, global_minimum):
     plt.figure(figsize=(16, 9))
     # plt.ylim(-0.2, upper_limit)
     plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean_g, 'bo', label="Global Social")
-    plt.plot(gen_mean_l, 'rx', label="Local")
+    plt.plot(gen_mean_g, 'bo', label="Topologia Global")
+    plt.plot(gen_mean_l, 'rx', label="Topologia Local")
     plt.title(f'{function_name} - Global x Local')
-    plt.ylabel("Fitness")
-    plt.xlabel("Generation")
+    plt.ylabel("Fitness Média")
+    plt.xlabel("Geração")
     plt.legend(loc='upper right', prop={'size': 16})
 
     plt.savefig(
@@ -338,13 +338,13 @@ def social(function_name, function, bounds, global_minimum):
         gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0])
     plt.ylim(-0.2, upper_limit)
     plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean_inertia_false, 'bo', label="Ignore Social Component")
-    plt.plot(gen_mean_inertia_true, 'rx', label="Use Cognitive Component")
-    plt.plot(gen_mean_ga, 'g+', label="Genetic Algorithm")
+    plt.plot(gen_mean_inertia_false, 'bo', label="COM Componente Cognitivo")
+    plt.plot(gen_mean_inertia_true, 'rx', label="SEM Componente Cognitivo")
+    plt.plot(gen_mean_ga, 'g+', label="Algoritmo Genético")
     plt.title(
-        f'{function_name} - Ignore Cognitive Component vs Use Cognitive Component')
-    plt.ylabel("Fitness")
-    plt.xlabel("Generation")
+        f'{function_name} - COM Componente Cognitivo x SEM Componente Cognitivo')
+    plt.ylabel("Fitness Média")
+    plt.xlabel("Geração")
     plt.legend(loc=0)
 
     plt.savefig(
@@ -363,11 +363,11 @@ def social(function_name, function, bounds, global_minimum):
     plt.plot(gen_mean_ga, 'gx')
     plt.xlim(20, 101)
     plt.title(
-        f'{function_name} - Ignore Cognitive Component vs Use Cognitive Component')
-    plt.ylabel("Average Fitness")
-    plt.xlabel("Generation")
-    plt.legend(['Ignore Cognitive Component', 'Use Cognitive Component',
-                'Genetic Algorithm'], loc=0, prop={'size': 12})
+        f'{function_name} - SEM Componente Cognitivo x COM Componente Cognitivo')
+    plt.ylabel("Fitness Média")
+    plt.xlabel("Geração")
+    plt.legend(['SEM Componente Cognitivo', 'COM Componente Cognitivo',
+                'Algoritmo Genético'], loc=0, prop={'size': 12})
 
     plt.savefig(
         "imgs/" + function_name + "/social-zoom(" + function_name + ").png")
