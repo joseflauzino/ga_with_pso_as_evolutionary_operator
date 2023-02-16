@@ -1,3 +1,4 @@
+from copy import copy
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -89,9 +90,12 @@ def population_size(function_name, function, bounds, global_minimum):
                     calculate_population_distance(chromosome_list))
 
         ga_pso_particle_number.append(n)
-        ga_pso_results.append(partial_results)
+        ga_pso_results.append(partial_results.copy)
         ga_pso_results_mean.append(np.mean(partial_results))
-        ga_pso_results_best_fitness.append(best_fitness_t)
+        ga_pso_results_best_fitness.append(copy(best_fitness_t))
+    teste = min(ga_pso_results_best_fitness)
+    print("Best Fitness ga_pso population_size:", min(ga_pso_results_best_fitness))
+    print(f"Best Fitness ga_pso population_size: {teste:.50f}")
 
     for n in range(30, 101, 10):
         best_fitness_t = np.inf
@@ -109,6 +113,9 @@ def population_size(function_name, function, bounds, global_minimum):
         ga_results.append(partial_results)
         ga_results_mean.append(np.mean(partial_results))
         ga_results_best_fitness.append(best_fitness_t)
+    print(f"Best Fitness GA population_size: {min(ga_results_best_fitness)}")
+    print(f"Best Fitness GA population_size: {min(ga_results_best_fitness):.2f}")
+    
 
     # ploting
     print('Plotting Fitness vs Population Size...')
@@ -171,17 +178,26 @@ def mutation(function_name, function, bounds, global_minimum):
     ga_pso_mutation = GA(function, bounds, generations=num_gen, mt_prob=0.25,
                          pso_mutation=True, with_inertia=True)
 
+    gen_best_fitnesses_n = np.inf
     for i in range(num_exec):
         _, execution_best_fitnesses_n, _ = ga_no_mutation.run()
         best_fitnesses_n.append(execution_best_fitnesses_n)
+        if gen_best_fitnesses_n > min(execution_best_fitnesses_n):
+            gen_best_fitnesses_n = copy(min(execution_best_fitnesses_n))
 
+    gen_best_fitnesses_m = np.inf
     for i in range(num_exec):
         _, execution_best_fitnesses_m, _ = ga_mutation.run()
         best_fitnesses_m.append(execution_best_fitnesses_m)
+        if gen_best_fitnesses_m > min(execution_best_fitnesses_m):
+            gen_best_fitnesses_m = copy(min(execution_best_fitnesses_m))
 
+    gen_best_fitnesses_pso_m = np.inf
     for i in range(num_exec):
         _, execution_best_fitnesses_pso_m, _ = ga_pso_mutation.run()
         best_fitnesses_pso_m.append(execution_best_fitnesses_pso_m)
+        if gen_best_fitnesses_pso_m > min(execution_best_fitnesses_pso_m):
+            gen_best_fitnesses_pso_m = copy(min(execution_best_fitnesses_pso_m))
 
     # grouping results by iteration number
     for i in range(len(best_fitnesses_m)):
@@ -200,6 +216,10 @@ def mutation(function_name, function, bounds, global_minimum):
 
         gen_mean_pso_m.append(np.mean(gen_results_pso_m[i]))
         gen_std_pso_m.append(np.std(gen_results_pso_m[i]))
+
+    print("Best Fitness mutation - ga no mutation:", gen_best_fitnesses_n)
+    print("Best Fitness mutation - ga with mutation:", gen_best_fitnesses_m)
+    print("Best Fitness mutation - ga_pso mutation:", gen_best_fitnesses_pso_m)
 
     upper_limit = max(gen_mean_m[0], gen_mean_n[0], gen_mean_pso_m[0])
     plt.figure(figsize=(16, 9))
@@ -231,17 +251,23 @@ def topology(function_name, function, bounds, global_minimum):
     ga_pso_g = GA(function, bounds, generations=num_gen, mt_prob=0.25,
                   pso_mutation=True, with_inertia=True)
 
+    gen_best_fitnesses_g = np.inf
     for i in range(num_exec):
         _, execution_best_fitnesses_g, _ = ga_pso_g.run()
         best_fitnesses_g.append(execution_best_fitnesses_g)
+        if gen_best_fitnesses_g > min(execution_best_fitnesses_g):
+            gen_best_fitnesses_g = copy(min(execution_best_fitnesses_g))
 
     # executing local topology algorithm 30 times
     ga_pso__l = GA(function, bounds, generations=num_gen, mt_prob=0.25,
                    pso_mutation=True, with_inertia=True, topology='ring')
 
+    gen_best_fitnesses_l = np.inf
     for i in range(num_exec):
         _, execution_best_fitnesses_l, _ = ga_pso__l.run()
         best_fitnesses_l.append(execution_best_fitnesses_l)
+        if gen_best_fitnesses_l > min(execution_best_fitnesses_l):
+            gen_best_fitnesses_l = copy(min(execution_best_fitnesses_l))
 
     # grouping results by iteration number
     for i in range(len(best_fitnesses_g)):
@@ -256,6 +282,9 @@ def topology(function_name, function, bounds, global_minimum):
 
         gen_mean_l.append(np.mean(gen_results_l[i]))
         gen_std_l.append(np.std(gen_results_l[i]))
+
+    print("Best Fitness topology - ga_pso global:", gen_best_fitnesses_g)
+    print("Best Fitness topology - ga_pso local:", gen_best_fitnesses_l)
 
     upper_limit = max(gen_mean_g[0], gen_mean_l[0])
 
@@ -293,26 +322,33 @@ def social(function_name, function, bounds, global_minimum):
     ga_pso_inertia_false = GA(function, bounds, generations=num_gen, mt_prob=0.25,
                               pso_mutation=True, with_inertia=False, max_iter=1)
 
+    gen_best_fitnesses_inertia_false = np.inf
     for i in range(num_exec):
         _, execution_best_fitnesses_inertia_false, _ = ga_pso_inertia_false.run()
-        best_fitnesses_inertia_false.append(
-            execution_best_fitnesses_inertia_false)
+        best_fitnesses_inertia_false.append(execution_best_fitnesses_inertia_false)
+        if gen_best_fitnesses_inertia_false > min(execution_best_fitnesses_inertia_false):
+            gen_best_fitnesses_inertia_false = copy(min(execution_best_fitnesses_inertia_false))
 
     # executing local topology algorithm 30 times
     ga_pso_inertia_true = GA(function, bounds, generations=num_gen, mt_prob=0.25,
                              pso_mutation=True, with_inertia=True, max_iter=10)
 
+    gen_best_fitnesses_inertia_true = np.inf
     for i in range(num_exec):
         _, execution_best_fitnesses_inertia_true, _ = ga_pso_inertia_true.run()
-        best_fitnesses_inertia_true.append(
-            execution_best_fitnesses_inertia_true)
+        best_fitnesses_inertia_true.append(execution_best_fitnesses_inertia_true)
+        if gen_best_fitnesses_inertia_true > min(execution_best_fitnesses_inertia_true):
+            gen_best_fitnesses_inertia_true = copy(min(execution_best_fitnesses_inertia_true))
 
     # executing just genetic algorithm
     ga = GA(function, bounds, generations=num_gen, mt_prob=0.25)
 
+    gen_best_fitnesses_ga = np.inf
     for i in range(num_exec):
         _, execution_best_fitnesses_ga, _ = ga.run()
         best_fitnesses_ga.append(execution_best_fitnesses_ga)
+        if gen_best_fitnesses_ga > min(execution_best_fitnesses_ga):
+            gen_best_fitnesses_ga = copy(min(execution_best_fitnesses_ga))
 
     # grouping results by iteration number
     for i in range(len(best_fitnesses_inertia_false)):
@@ -336,6 +372,11 @@ def social(function_name, function, bounds, global_minimum):
 
     upper_limit = max(
         gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0])
+    print("Best Fitness Social - ga_pso ignore component cognitive:", gen_best_fitnesses_inertia_false)
+    print("Best Fitness Social - ga_pso use component cognitive:", gen_best_fitnesses_inertia_true)
+    print("Best Fitness Social - ga base:", gen_best_fitnesses_ga)
+
+    upper_limit = max(gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0])
     plt.ylim(-0.2, upper_limit)
     plt.ylim(global_minimum, upper_limit)
     plt.plot(gen_mean_inertia_false, 'bo', label="COM Componente Cognitivo")
