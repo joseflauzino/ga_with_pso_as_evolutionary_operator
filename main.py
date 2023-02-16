@@ -58,7 +58,7 @@ capsize = 3
 elw = 0.5
 
 
-def population_size(function_name, function, bounds):
+def population_size(function_name, function, bounds, global_minimum):
     print('Optimizing the population_size', function_name, 'function...')
     ga_results = []
     ga_results_mean = []
@@ -113,20 +113,20 @@ def population_size(function_name, function, bounds):
     # ploting
     print('Plotting Fitness vs Population Size...')
     plt.figure(figsize=(10, 7))
-    plt.plot(ga_pso_results_mean, 'ro')
-    plt.plot(ga_pso_results_best_fitness, 'b+')
-    plt.plot(ga_results_mean, 'go')
-    plt.plot(ga_results_best_fitness, 'm+')
+    plt.plot(ga_pso_results_mean, 'rs')
+    plt.plot(ga_pso_results_best_fitness, 'b*')
+    plt.plot(ga_results_mean, 'g+')
+    plt.plot(ga_results_best_fitness, 'mx')
     plt.xticks(range(1, len(ga_pso_results) + 1), ga_pso_particle_number)
     max_y = max(ga_pso_results_mean)
-    step = (max_y/10)
-    plt.yticks(np.arange(0, max_y+step, step=step))
+    step = abs(max_y/10)
+    plt.yticks(np.arange(global_minimum, max_y+step, step=step))
     plt.title(function_name)
     plt.ylabel("Fitness")
     plt.xlabel("Population Size")
     plt.legend(['Fitness Média GA-PSO', 'Melhor Fitness GA-PSO',
                'Fitness Média GA', 'Melhor Fitness GA'], loc=0)
-    plt.savefig("imgs/fitness_vs_population_size(" + function_name + ").png")
+    plt.savefig("imgs/" + function_name + "/fitness_vs_population_size(" + function_name + ").png")
 
     print('Plotting Average Distance over Generations GA-PSO...')
     result_distance = []
@@ -143,11 +143,11 @@ def population_size(function_name, function, bounds):
     plt.xlabel("Generation")
     plt.yticks(np.arange(0, 110, step=10))
     plt.savefig(
-        "imgs/average_distance_over_generations(" + function_name + ").png")
+        "imgs/" + function_name + "/average_distance_over_generations(" + function_name + ").png")
     print('')
 
 
-def mutation(function_name, function, bounds):
+def mutation(function_name, function, bounds, global_minimum):
     print('Optimizing the mutation', function_name, 'function...')
 
     best_fitnesses_n = []
@@ -200,26 +200,21 @@ def mutation(function_name, function, bounds):
         gen_mean_pso_m.append(np.mean(gen_results_pso_m[i]))
         gen_std_pso_m.append(np.std(gen_results_pso_m[i]))
 
-    upper_limit = max(gen_mean_m[0], gen_mean_n[0], gen_mean_pso_m[0]) + \
-        max(gen_std_m[0], gen_std_n[0], gen_std_pso_m[0]) + 0.2
-
+    upper_limit = max(gen_mean_m[0], gen_mean_n[0], gen_mean_pso_m[0])
     plt.figure(figsize=(16, 9))
-    plt.ylim(0, upper_limit)
-    plt.errorbar(x, np.array(gen_mean_n), np.array(gen_std_n), ms=ms, lw=lw,
-                 marker="o", capsize=capsize, elinewidth=elw, label="No Mutation")
-    plt.errorbar(x, np.array(gen_mean_m), np.array(gen_std_m), ms=ms, ls="--", lw=lw, marker="o",
-                 capsize=capsize, ecolor="red", color="r", elinewidth=elw, label="Mutation", alpha=0.8)
-    plt.errorbar(x, np.array(gen_mean_pso_m), np.array(gen_std_pso_m), ms=ms, ls=":", lw=lw, marker="o",
-                 capsize=capsize, ecolor="green", color="g", elinewidth=elw, label=" PSO-Mutation", alpha=0.8)
+    plt.ylim(global_minimum, upper_limit)
+    plt.plot(gen_mean_n, 'bo', label="No Mutation")
+    plt.plot(gen_mean_m, 'rx', label="Mutation")
+    plt.plot(gen_mean_pso_m, 'g+', label=" PSO-Mutation")
     plt.title(f'{function_name} - No Mutation X Mutation')
     plt.ylabel("Fitness")
     plt.xlabel("Generation")
     plt.legend(loc='upper right', prop={'size': 16})
     plt.savefig(
-        "imgs/mutation(" + function_name + ").png")
+        "imgs/" + function_name + "/mutation(" + function_name + ").png")
 
 
-def topology(function_name, function, bounds):
+def topology(function_name, function, bounds, global_minimum):
     print('Optimizing the topology', function_name, 'function...')
 
     best_fitnesses_g = []
@@ -261,25 +256,23 @@ def topology(function_name, function, bounds):
         gen_mean_l.append(np.mean(gen_results_l[i]))
         gen_std_l.append(np.std(gen_results_l[i]))
 
-    upper_limit = max(gen_mean_g[0], gen_mean_l[0]) + \
-        max(gen_std_g[0], gen_std_l[0]) + 0.2
+    upper_limit = max(gen_mean_g[0], gen_mean_l[0])
 
     plt.figure(figsize=(16, 9))
-    plt.ylim(-0.2, upper_limit)
-    plt.errorbar(x, np.array(gen_mean_g), np.array(gen_std_g), ms=ms, lw=lw, marker="o",
-                 capsize=capsize, ecolor="blue", elinewidth=elw, label='Global')
-    plt.errorbar(x, np.array(gen_mean_l), np.array(gen_std_l), ms=ms, lw=lw, ls='--',
-                 marker="s", capsize=capsize, color="r", ecolor="r", elinewidth=elw, label='Local', alpha=0.7)
+    #plt.ylim(-0.2, upper_limit)
+    plt.ylim(global_minimum, upper_limit)
+    plt.plot(gen_mean_g, 'bo', label="Global Social")
+    plt.plot(gen_mean_l, 'rx', label="Local")
     plt.title(f'{function_name} - Global x Local')
     plt.ylabel("Fitness")
     plt.xlabel("Generation")
     plt.legend(loc='upper right', prop={'size': 16})
 
     plt.savefig(
-        "imgs/topology(" + function_name + ").png")
+        "imgs/" + function_name + "/topology(" + function_name + ").png")
     
 
-def social(function_name, function, bounds):
+def social(function_name, function, bounds, global_minimum):
     print('Optimizing the social', function_name, 'function...')
 
     best_fitnesses_inertia_false = []
@@ -336,56 +329,51 @@ def social(function_name, function, bounds):
         gen_mean_ga.append(np.mean(gen_results_ga[i]))
         gen_std_ga.append(np.std(gen_results_ga[i]))
 
-    upper_limit = max(gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0]) + \
-        max(gen_std_inertia_false[0], gen_std_inertia_true[0], gen_std_ga[0]) + 0.2
-
-    plt.figure(figsize=(16, 9))
+    upper_limit = max(gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0])
     plt.ylim(-0.2, upper_limit)
-    plt.errorbar(x, np.array(gen_mean_inertia_false), np.array(gen_std_inertia_false), ms=ms, lw=lw, marker="o",
-                 capsize=capsize, ecolor="blue", elinewidth=elw, label='Ignore Social')
-    plt.errorbar(x, np.array(gen_mean_inertia_true), np.array(gen_std_inertia_true), ms=ms, lw=lw, ls='--',
-                 marker="s", capsize=capsize, color="r", ecolor="r", elinewidth=elw, label='With Social', alpha=0.7)
-    plt.errorbar(x, np.array(gen_mean_ga), np.array(gen_std_ga), ms=ms, lw=lw, ls='--',
-                 marker="*", capsize=capsize, color="g", ecolor="g", elinewidth=elw, label='Genetic Algorithm', alpha=0.7)
-    plt.title(f'{function_name} - Global x Local')
+    plt.ylim(global_minimum, upper_limit)
+    plt.plot(gen_mean_inertia_false, 'bo', label="Ignore Social Component")
+    plt.plot(gen_mean_inertia_true, 'rx', label="Use Cognitive Component")
+    plt.plot(gen_mean_ga, 'g+', label="Genetic Algorithm")
+    plt.title(f'{function_name} - Ignore Cognitive Component vs Use Cognitive Component')
     plt.ylabel("Fitness")
     plt.xlabel("Generation")
     plt.legend(loc='upper right', prop={'size': 16})
 
     plt.savefig(
-        "imgs/social-complete(" + function_name + ").png")
+        "imgs/" + function_name + "/social-complete(" + function_name + ").png")
     
     #zoom
     N = 20
     upper_limit = max(max(gen_mean_inertia_false[N:]), max(gen_mean_inertia_true[N:]), max(gen_mean_ga[N:]))
-    upper_limit += (upper_limit/10)
+    #upper_limit += (upper_limit/10)
  
     plt.figure(figsize=(16, 9))
-    plt.ylim(0, upper_limit)
+    plt.ylim(global_minimum, upper_limit)
     plt.plot(gen_mean_inertia_false, 'b+')
     plt.plot(gen_mean_inertia_true, 'ro')
     plt.plot(gen_mean_ga, 'gx')
     plt.xlim(20, 101)
-    plt.title(f'{function_name} - Ignore Cognitive Component x With Cognitive Component')
+    plt.title(f'{function_name} - Ignore Cognitive Component vs Use Cognitive Component')
     plt.ylabel("Average Fitness")
     plt.xlabel("Generation")
-    plt.legend(['Ignore Cognitive', 'With Cognitive',
-            'Genetic Algorithm'], loc=0)
+    plt.legend(['Ignore Cognitive Component', 'Use Cognitive Component',
+            'Genetic Algorithm'], loc=0, prop={'size': 12})
 
     plt.savefig(
-        "imgs/social-zoom(" + function_name + ").png")
+        "imgs/" + function_name + "/social-zoom(" + function_name + ").png")
     
 
 
-def main(function_name, function, bounds):
-    population_size(function_name, function, bounds)
-    mutation(function_name, function, bounds)
-    topology(function_name, function, bounds)
-    social(function_name, function, bounds)
+def main(function_name, function, bounds, global_minimum):
+    population_size(function_name, function, bounds, global_minimum)
+    mutation(function_name, function, bounds, global_minimum)
+    topology(function_name, function, bounds, global_minimum)
+    social(function_name, function, bounds, global_minimum)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit("Usage: python main.py <function>")
-    function_name, function, bounds = get_function_and_bounds(sys.argv[1])
-    main(function_name, function, bounds)
+    function_name, function, bounds, global_minimum = get_function_and_bounds(sys.argv[1])
+    main(function_name, function, bounds, global_minimum)

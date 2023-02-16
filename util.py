@@ -30,16 +30,20 @@ def calculate_population_distance(generations):
 
 
 def get_function_and_bounds(function_name: str):
+    """ 
+        Args: The function name.
+        Returns: Function Name, Function Object, Bounds, Global Minimum
+    """
     if function_name.lower() == 'sphere':
-        return 'Sphere', sphere, [(-5.12, 5.12)]
-    if function_name.lower() == 'rastringin':
-        return 'Rastringin', rastringin, [(-5.12, 5.12)]
+        return 'Sphere', sphere, [(-5.12, 5.12)], 0
+    if function_name.lower() == 'rastrigin':
+        return 'Rastrigin', rastrigin, [(-5.12, 5.12)], 0
     if function_name.lower() == 'ackley':
-        return 'Ackley', ackley, [(-32.768, 32.768)]
+        return 'Ackley', ackley, [(-32.768, 32.768)], 0
     if function_name.lower() == 'eggholder':
-        return 'Eggholder', eggholder, [(-512, 512)]
+        return 'Eggholder', eggholder, [(-512, 512)], -959.6407
     if function_name.lower() == 'drop_wave':
-        return 'Drop Wave', drop_wave, [(-5.12, 5.12)]
+        return 'Drop Wave', drop_wave, [(-5.12, 5.12)], -1
     else:
         raise "Invalid function name"
 
