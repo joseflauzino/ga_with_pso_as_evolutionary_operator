@@ -126,7 +126,8 @@ def population_size(function_name, function, bounds, global_minimum):
     plt.xlabel("Population Size")
     plt.legend(['Fitness Média GA-PSO', 'Melhor Fitness GA-PSO',
                'Fitness Média GA', 'Melhor Fitness GA'], loc=0)
-    plt.savefig("imgs/" + function_name + "/fitness_vs_population_size(" + function_name + ").png")
+    plt.savefig("imgs/" + function_name +
+                "/fitness_vs_population_size(" + function_name + ").png")
 
     print('Plotting Average Distance over Generations GA-PSO...')
     result_distance = []
@@ -259,7 +260,7 @@ def topology(function_name, function, bounds, global_minimum):
     upper_limit = max(gen_mean_g[0], gen_mean_l[0])
 
     plt.figure(figsize=(16, 9))
-    #plt.ylim(-0.2, upper_limit)
+    # plt.ylim(-0.2, upper_limit)
     plt.ylim(global_minimum, upper_limit)
     plt.plot(gen_mean_g, 'bo', label="Global Social")
     plt.plot(gen_mean_l, 'rx', label="Local")
@@ -270,7 +271,7 @@ def topology(function_name, function, bounds, global_minimum):
 
     plt.savefig(
         "imgs/" + function_name + "/topology(" + function_name + ").png")
-    
+
 
 def social(function_name, function, bounds, global_minimum):
     print('Optimizing the social', function_name, 'function...')
@@ -280,7 +281,7 @@ def social(function_name, function, bounds, global_minimum):
     best_fitnesses_ga = []
     gen_results_inertia_false = [[] for i in range(num_gen)]
     gen_results_inertia_true = [[] for i in range(num_gen)]
-    gen_results_ga= [[] for i in range(num_gen)]
+    gen_results_ga = [[] for i in range(num_gen)]
     gen_mean_inertia_false = []
     gen_mean_inertia_true = []
     gen_mean_ga = []
@@ -290,19 +291,21 @@ def social(function_name, function, bounds, global_minimum):
 
     # executing global topology algorithm 30 times
     ga_pso_inertia_false = GA(function, bounds, generations=num_gen, mt_prob=0.25,
-                  pso_mutation=True, with_inertia=False, max_iter=1)
+                              pso_mutation=True, with_inertia=False, max_iter=1)
 
     for i in range(num_exec):
         _, execution_best_fitnesses_inertia_false, _ = ga_pso_inertia_false.run()
-        best_fitnesses_inertia_false.append(execution_best_fitnesses_inertia_false)
+        best_fitnesses_inertia_false.append(
+            execution_best_fitnesses_inertia_false)
 
     # executing local topology algorithm 30 times
     ga_pso_inertia_true = GA(function, bounds, generations=num_gen, mt_prob=0.25,
-                   pso_mutation=True, with_inertia=True, max_iter=10)
+                             pso_mutation=True, with_inertia=True, max_iter=10)
 
     for i in range(num_exec):
         _, execution_best_fitnesses_inertia_true, _ = ga_pso_inertia_true.run()
-        best_fitnesses_inertia_true.append(execution_best_fitnesses_inertia_true)
+        best_fitnesses_inertia_true.append(
+            execution_best_fitnesses_inertia_true)
 
     # executing just genetic algorithm
     ga = GA(function, bounds, generations=num_gen, mt_prob=0.25)
@@ -314,8 +317,10 @@ def social(function_name, function, bounds, global_minimum):
     # grouping results by iteration number
     for i in range(len(best_fitnesses_inertia_false)):
         for j in range(len(best_fitnesses_inertia_false[i])):
-            gen_results_inertia_false[j].append(best_fitnesses_inertia_false[i][j])
-            gen_results_inertia_true[j].append(best_fitnesses_inertia_true[i][j])
+            gen_results_inertia_false[j].append(
+                best_fitnesses_inertia_false[i][j])
+            gen_results_inertia_true[j].append(
+                best_fitnesses_inertia_true[i][j])
             gen_results_ga[j].append(best_fitnesses_ga[i][j])
 
     # calculating mean and std values by iteration number
@@ -329,51 +334,55 @@ def social(function_name, function, bounds, global_minimum):
         gen_mean_ga.append(np.mean(gen_results_ga[i]))
         gen_std_ga.append(np.std(gen_results_ga[i]))
 
-    upper_limit = max(gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0])
+    upper_limit = max(
+        gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0])
     plt.ylim(-0.2, upper_limit)
     plt.ylim(global_minimum, upper_limit)
     plt.plot(gen_mean_inertia_false, 'bo', label="Ignore Social Component")
     plt.plot(gen_mean_inertia_true, 'rx', label="Use Cognitive Component")
     plt.plot(gen_mean_ga, 'g+', label="Genetic Algorithm")
-    plt.title(f'{function_name} - Ignore Cognitive Component vs Use Cognitive Component')
+    plt.title(
+        f'{function_name} - Ignore Cognitive Component vs Use Cognitive Component')
     plt.ylabel("Fitness")
     plt.xlabel("Generation")
-    plt.legend(loc='upper right', prop={'size': 16})
+    plt.legend(loc=0)
 
     plt.savefig(
         "imgs/" + function_name + "/social-complete(" + function_name + ").png")
-    
-    #zoom
+
+    # zoom
     N = 20
-    upper_limit = max(max(gen_mean_inertia_false[N:]), max(gen_mean_inertia_true[N:]), max(gen_mean_ga[N:]))
-    #upper_limit += (upper_limit/10)
- 
+    upper_limit = max(max(gen_mean_inertia_false[N:]), max(
+        gen_mean_inertia_true[N:]), max(gen_mean_ga[N:]))
+    # upper_limit += (upper_limit/10)
+
     plt.figure(figsize=(16, 9))
     plt.ylim(global_minimum, upper_limit)
     plt.plot(gen_mean_inertia_false, 'b+')
     plt.plot(gen_mean_inertia_true, 'ro')
     plt.plot(gen_mean_ga, 'gx')
     plt.xlim(20, 101)
-    plt.title(f'{function_name} - Ignore Cognitive Component vs Use Cognitive Component')
+    plt.title(
+        f'{function_name} - Ignore Cognitive Component vs Use Cognitive Component')
     plt.ylabel("Average Fitness")
     plt.xlabel("Generation")
     plt.legend(['Ignore Cognitive Component', 'Use Cognitive Component',
-            'Genetic Algorithm'], loc=0, prop={'size': 12})
+                'Genetic Algorithm'], loc=0, prop={'size': 12})
 
     plt.savefig(
         "imgs/" + function_name + "/social-zoom(" + function_name + ").png")
-    
 
 
 def main(function_name, function, bounds, global_minimum):
-    population_size(function_name, function, bounds, global_minimum)
-    mutation(function_name, function, bounds, global_minimum)
-    topology(function_name, function, bounds, global_minimum)
+    # population_size(function_name, function, bounds, global_minimum)
+    # mutation(function_name, function, bounds, global_minimum)
+    # topology(function_name, function, bounds, global_minimum)
     social(function_name, function, bounds, global_minimum)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit("Usage: python main.py <function>")
-    function_name, function, bounds, global_minimum = get_function_and_bounds(sys.argv[1])
+    function_name, function, bounds, global_minimum = get_function_and_bounds(
+        sys.argv[1])
     main(function_name, function, bounds, global_minimum)
