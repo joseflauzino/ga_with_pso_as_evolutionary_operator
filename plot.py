@@ -13,7 +13,7 @@ def plot_population(function_name, global_minimum, population):
     plt.savefig("imgs/" + function_name +
                 "/population(" + function_name + ")-GA-PSO.pdf", bbox_inches='tight')
     
-def plot_population_size(function_name, global_minimum, ga_results, ga_pso_results, population_size_list):
+def plot_population_size(function_name, global_minimum, ga_results, ga_pso_results):
     print('Plotting Fitness vs Population Size...')
     plt.rcParams['font.size'] = '16'
     plt.figure(figsize=(12, 9))
@@ -33,7 +33,7 @@ def plot_population_size(function_name, global_minimum, ga_results, ga_pso_resul
     plt.savefig("imgs/" + function_name +
                 "/fitness_vs_population_size(" + function_name + ").pdf", bbox_inches='tight')
 
-    print('Plotting Average Distance over Generations GA-PSO...')
+    print('Plotting Average Distance over Generations...')
     result_distance_ga_pso = []
     result_distance_ga = []
     for gen in range(100):

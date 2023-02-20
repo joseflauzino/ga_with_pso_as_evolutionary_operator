@@ -1,10 +1,12 @@
 from copy import copy
 import sys
+from operator import itemgetter
 import numpy as np
 import matplotlib.pyplot as plt
 
 from ga import GA
 from util import *
+from plot import *
 
 #########################################################
 # Parâmetros GA:
@@ -49,7 +51,7 @@ from util import *
 
 
 num_gen = 100
-num_exec = 30
+num_exec = 60
 x = np.arange(1, num_gen + 1, 1)  # iteration number array
 x_zoom = np.arange(20, num_gen, 1)  # iteration number array
 
@@ -62,113 +64,47 @@ mt_prob=0.25
 topology = "ring"
 topology=topology
 
+def print_winner(result_list):
+    ordered_list = sorted(result_list, key=itemgetter('result')) 
+    if ordered_list[0]['result'] == ordered_list[1]['result']:
+        print("There was a tie!")
+    else:
+        print(ordered_list[0]['name'],'won!')
+
 def population_size(function_name, function, bounds, global_minimum):
-    print('Optimizing the population_size', function_name, 'function...')
-    ga_results = []
-    ga_results_mean = []
-    ga_particle_number = []
-    ga_results_best_fitness = []
-    distance_exe_ga = []
+    print('Optimizing the', function_name, 'function by varying the population size...')
 
-    ga_pso_results = []
-    ga_pso_results_mean = []
-    ga_pso_particle_number = []
-    ga_pso_results_best_fitness = []
-    distance_exe_ga_pso = []
-
-    # varying the number of chromosomes
-    for n in range(30, 101, 10):
-        best_fitness_t = np.inf
-        ga_pso = GA(function, bounds, pop_size=n, mt_prob=mt_prob,
-                    pso_mutation=True, with_inertia=True, topology=topology)
-        partial_results = []
-        # executing the algorithm 30 times
-        for i in range(num_exec):
-            execution, best_fitness, chromosome_list = ga_pso.run()
-            partial_results.append(execution)
-            best_fitness.sort()
-            if best_fitness_t > best_fitness[0]:
-                best_fitness_t = best_fitness[0]
-            if n == 50:
-                distance_exe_ga_pso.append(
-                    calculate_population_distance(chromosome_list))
-
-        ga_pso_particle_number.append(n)
-        ga_pso_results.append(partial_results.copy)
-        ga_pso_results_mean.append(np.mean(partial_results))
-        ga_pso_results_best_fitness.append(copy(best_fitness_t))
-
-    print("Best Fitness ga_pso population_size:", min(ga_pso_results_best_fitness))
-
-    for n in range(30, 101, 10):
-        best_fitness_t = np.inf
-        ga = GA(function, bounds, pop_size=n, mt_prob=mt_prob)
-        partial_results = []
-        # executing the algorithm 30 times
-        for i in range(num_exec):
-            execution, best_fitness, chromosome_list = ga.run()
-            partial_results.append(execution)
-            best_fitness.sort()
-            if best_fitness_t > best_fitness[0]:
-                best_fitness_t = best_fitness[0]
-            if n == 50:
-                distance_exe_ga.append(
-                    calculate_population_distance(chromosome_list))
-
-        ga_particle_number.append(n)
-        ga_results.append(partial_results)
-        ga_results_mean.append(np.mean(partial_results))
-        ga_results_best_fitness.append(best_fitness_t)
-
-    print(f"Best Fitness GA population_size: {min(ga_results_best_fitness)}")
-
+    def run(algorithm_instance):
+        results = {'average_fitness': [], 'best_fitness': [], 'average_distance': []}
+        for n in range(30, 101, 10):
+            algorithm_instance.pop_size = n
+            best_fitness_t = np.inf
+            partial_results = []
+            for i in range(num_exec):
+                execution, best_fitness, chromosome_list = algorithm_instance.run()
+                partial_results.append(execution)
+                best_fitness.sort()
+                if best_fitness_t > best_fitness[0]:
+                    best_fitness_t = best_fitness[0]
+                if n == 50:
+                    results['average_distance'].append(calculate_population_distance(chromosome_list))
+            results['average_fitness'].append(np.mean(partial_results))
+            results['best_fitness'].append(copy(best_fitness_t))
+        return results
     
+    ga_pso_results = run(GA(function, bounds, mt_prob=mt_prob, pso_mutation=True, with_inertia=True, topology=topology))
+    ga_pso_best_fitness = min(ga_pso_results['best_fitness'])
+    print("Best Fitness ga_pso population_size:", ga_pso_best_fitness)
 
-    # ploting
-    print('Plotting Fitness vs Population Size...')
-    plt.figure(figsize=(10, 7))
-    plt.plot(ga_pso_results_mean, 'rs')
-    plt.plot(ga_pso_results_best_fitness, 'b*')
-    plt.plot(ga_results_mean, 'g+')
-    plt.plot(ga_results_best_fitness, 'mx')
-    plt.xticks(range(1, len(ga_pso_results) + 1), ga_pso_particle_number)
-    max_y = max(ga_pso_results_mean)
-    step = abs(max_y/10)
-    plt.yticks(np.arange(global_minimum, max_y+step, step=step))
-    plt.title(function_name)
-    plt.ylabel("Fitness Média")
-    plt.xlabel("Tamanho da População")
-    plt.legend(['Fitness Média GA-PSO', 'Melhor Fitness GA-PSO',
-               'Fitness Média GA', 'Melhor Fitness GA'], loc=0)
-    plt.savefig("imgs/" + function_name +
-                "/fitness_vs_population_size(" + function_name + ").png")
+    ga_results = run(GA(function, bounds, mt_prob=mt_prob))
+    ga_best_fitness = min(ga_results['best_fitness'])
+    print("Best Fitness GA population_size:", ga_best_fitness)
 
-    print('Plotting Average Distance over Generations GA-PSO...')
-    result_distance_ga_pso = []
-    result_distance_ga = []
-    for gen in range(100):
-        aux_result_distance_ga_pso = []
-        aux_result_distance_ga = []
-        for list_avg in distance_exe_ga_pso:
-            aux_result_distance_ga_pso.append(copy(list_avg[gen]))
-        # calcula a media da geração aqui
-        result_distance_ga_pso.append(mean(aux_result_distance_ga_pso))
+    print_winner([
+        {'name': 'GA-PSO', 'result': ga_pso_best_fitness},
+        {'name': 'GA', 'result': ga_best_fitness}])
 
-        for list_avg in distance_exe_ga:
-            aux_result_distance_ga.append(copy(list_avg[gen]))
-        # calcula a media da geração aqui
-        result_distance_ga.append(mean(aux_result_distance_ga))
-    plt.figure(figsize=(10, 7))
-    plt.plot(result_distance_ga_pso, 'ro', label="GA-PSO")
-    plt.plot(result_distance_ga, 'bo', label="GA")
-    plt.title(function_name)
-    plt.ylabel("Distância Média")
-    plt.xlabel("Geração")
-    plt.yticks(np.arange(0, 110, step=10))
-    plt.legend(loc=0)
-    plt.savefig(
-        "imgs/" + function_name + "/average_distance_over_generations(" + function_name + ").png")
-    print('')
+    plot_population_size(function_name, global_minimum, ga_results, ga_pso_results)
 
 
 def mutation(function_name, function, bounds, global_minimum):
@@ -237,19 +173,6 @@ def mutation(function_name, function, bounds, global_minimum):
     print("Best Fitness mutation - ga with mutation:", gen_best_fitnesses_m)
     print("Best Fitness mutation - ga_pso mutation:", gen_best_fitnesses_pso_m)
 
-    upper_limit = max(gen_mean_m[0], gen_mean_n[0], gen_mean_pso_m[0])
-    plt.figure(figsize=(16, 9))
-    plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean_n, 'bo', label="SEM Mutação")
-    plt.plot(gen_mean_m, 'rx', label="COM Mutação")
-    plt.plot(gen_mean_pso_m, 'g+', label="COM Mutação - PSO")
-    plt.title(f'{function_name} - SEM Mutação X COM Mutação')
-    plt.ylabel("Fitness Média")
-    plt.xlabel("Geração")
-    plt.legend(loc=0, prop={'size': 16})
-    plt.savefig(
-        "imgs/" + function_name + "/mutation(" + function_name + ").png")
-
 
 def topology_func(function_name, function, bounds, global_minimum):
     print('Optimizing the topology', function_name, 'function...')
@@ -301,21 +224,6 @@ def topology_func(function_name, function, bounds, global_minimum):
 
     print("Best Fitness topology - ga_pso global:", gen_best_fitnesses_g)
     print("Best Fitness topology - ga_pso local:", gen_best_fitnesses_l)
-
-    upper_limit = max(gen_mean_g[0], gen_mean_l[0])
-
-    plt.figure(figsize=(16, 9))
-    # plt.ylim(-0.2, upper_limit)
-    plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean_g, 'bo', label="Topologia Global")
-    plt.plot(gen_mean_l, 'rx', label="Topologia Local")
-    plt.title(f'{function_name} - Global x Local')
-    plt.ylabel("Fitness Média")
-    plt.xlabel("Geração")
-    plt.legend(loc=0, prop={'size': 16})
-
-    plt.savefig(
-        "imgs/" + function_name + "/topology(" + function_name + ").png")
 
 
 def social(function_name, function, bounds, global_minimum):
@@ -386,54 +294,11 @@ def social(function_name, function, bounds, global_minimum):
         gen_mean_ga.append(np.mean(gen_results_ga[i]))
         gen_std_ga.append(np.std(gen_results_ga[i]))
 
-    upper_limit = max(
-        gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0])
-    print("Best Fitness Social - ga_pso ignore component cognitive:", gen_best_fitnesses_inertia_false)
-    print("Best Fitness Social - ga_pso use component cognitive:", gen_best_fitnesses_inertia_true)
-    print("Best Fitness Social - ga base:", gen_best_fitnesses_ga)
-
-    upper_limit = max(gen_mean_inertia_false[0], gen_mean_inertia_true[0], gen_mean_ga[0])
-    plt.ylim(-0.2, upper_limit)
-    plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean_inertia_false, 'bo', label="COM Componente Cognitivo")
-    plt.plot(gen_mean_inertia_true, 'rx', label="SEM Componente Cognitivo")
-    plt.plot(gen_mean_ga, 'g+', label="Algoritmo Genético")
-    plt.title(
-        f'{function_name} - COM Componente Cognitivo x SEM Componente Cognitivo')
-    plt.ylabel("Fitness Média")
-    plt.xlabel("Geração")
-    plt.legend(loc=0)
-
-    plt.savefig(
-        "imgs/" + function_name + "/social-complete(" + function_name + ").png")
-
-    # zoom
-    N = 20
-    upper_limit = max(max(gen_mean_inertia_false[N:]), max(
-        gen_mean_inertia_true[N:]), max(gen_mean_ga[N:]))
-    # upper_limit += (upper_limit/10)
-
-    plt.figure(figsize=(16, 9))
-    plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean_inertia_false, 'b+')
-    plt.plot(gen_mean_inertia_true, 'ro')
-    plt.plot(gen_mean_ga, 'gx')
-    plt.xlim(20, 101)
-    plt.title(
-        f'{function_name} - SEM Componente Cognitivo x COM Componente Cognitivo')
-    plt.ylabel("Fitness Média")
-    plt.xlabel("Geração")
-    plt.legend(['SEM Componente Cognitivo', 'COM Componente Cognitivo',
-                'Algoritmo Genético'], loc=0, prop={'size': 12})
-
-    plt.savefig(
-        "imgs/" + function_name + "/social-zoom(" + function_name + ").png")
-
 
 def main(function_name, function, bounds, global_minimum):
     population_size(function_name, function, bounds, global_minimum)
-    mutation(function_name, function, bounds, global_minimum)
-    topology_func(function_name, function, bounds, global_minimum)
+    # mutation(function_name, function, bounds, global_minimum)
+    # topology_func(function_name, function, bounds, global_minimum)
     #social(function_name, function, bounds, global_minimum)
 
 

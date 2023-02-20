@@ -230,8 +230,8 @@ class GA:
                 population[i]['chosen'] = False
 
             if self.pso_mutation:
-                if len(set(gen_best_fitnesses[-3:])) == 1:
-                #if random.random() < self.mt_prob:
+                # if len(set(gen_best_fitnesses[-3:])) == 1:
+                if random.random() < self.mt_prob:
                     population = self.mutate_using_pso(population)
             else:
                 if self.mt_prob > 0:
