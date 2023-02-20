@@ -96,18 +96,18 @@ def plot_topology(function_name, average_fitness, global_minimum):
         "imgs/" + function_name + "/topology(" + function_name + ").pdf", bbox_inches='tight')
     print('')
     
-def plot_cognitive(function_name, gen_mean, global_minimum):
+def plot_inertia_and_cognitive(function_name, average_fitness, global_minimum):
     upper_limit = max(
-        gen_mean['cognitive_false'][0], gen_mean['cognitive_true'][0], gen_mean['ga'][0])
+        average_fitness['cognitive_false'][0], average_fitness['cognitive_true'][0], average_fitness['ga'][0])
     plt.rcParams['font.size'] = '16'
     plt.figure(figsize=(12, 9))
     plt.ylim(-0.2, upper_limit)
     plt.ylim(global_minimum, upper_limit)
     plt.xticks([1, 20, 40, 60, 80, 100])  # Set text labels.
     data_range_complete = np.arange(1, 101)
-    plt.plot(data_range_complete, gen_mean['cognitive_false'], 'ro', label="GA-PSO (1 iteração do PSO)")
-    plt.plot(data_range_complete, gen_mean['cognitive_true'], 'b+', label="GA-PSO (10 iterações do PSO)")
-    plt.plot(data_range_complete, gen_mean['ga'], 'gx', label="GA")
+    plt.plot(data_range_complete, average_fitness['cognitive_false'], 'ro', label="GA-PSO (1 iteração do PSO)")
+    plt.plot(data_range_complete, average_fitness['cognitive_true'], 'b+', label="GA-PSO (10 iterações do PSO)")
+    plt.plot(data_range_complete, average_fitness['ga'], 'gx', label="GA")
     plt.title(function_name, fontsize=18)
     plt.ylabel("Fitness Média", fontsize=18)
     plt.xlabel("Geração", fontsize=18)
@@ -118,15 +118,15 @@ def plot_cognitive(function_name, gen_mean, global_minimum):
 
     # zoom
     N = 20
-    upper_limit = max(max(gen_mean['cognitive_false'][N:41]), max(gen_mean['cognitive_true'][N:41]), max(gen_mean['ga'][N:41]))
+    upper_limit = max(max(average_fitness['cognitive_false'][N:41]), max(average_fitness['cognitive_true'][N:41]), max(average_fitness['ga'][N:41]))
     plt.rcParams['font.size'] = '16'
     plt.figure(figsize=(12, 9))
     plt.ylim(global_minimum, upper_limit)
     plt.xticks(np.arange(20, 41, step=10))  # Set text labels.
     data_range = np.arange(20, 41)
-    plt.plot(data_range, gen_mean['cognitive_false'][N:41], 'ro', label="GA-PSO (1 iteração do PSO)")
-    plt.plot(data_range, gen_mean['cognitive_true'][N:41], 'b+', label="GA-PSO (10 iterações do PSO)")
-    plt.plot(data_range, gen_mean['ga'][N:41], 'gx', label='GA')
+    plt.plot(data_range, average_fitness['cognitive_false'][N:41], 'ro', label="GA-PSO (1 iteração do PSO)")
+    plt.plot(data_range, average_fitness['cognitive_true'][N:41], 'b+', label="GA-PSO (10 iterações do PSO)")
+    plt.plot(data_range, average_fitness['ga'][N:41], 'gx', label='GA')
     plt.title(function_name, fontsize=18)
     plt.ylabel("Fitness Média", fontsize=18)
     plt.xlabel("Geração", fontsize=18)

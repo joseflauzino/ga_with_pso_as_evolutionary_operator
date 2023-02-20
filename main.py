@@ -189,80 +189,44 @@ def topology_func(function_name, function, bounds, global_minimum):
     
     plot_topology(function_name, average_fitness, global_minimum)
 
-def social(function_name, function, bounds, global_minimum):
-    print('Optimizing the social', function_name, 'function...')
+def inertia_and_cognitive(function_name, function, bounds, global_minimum):
+    print('Optimizing the', function_name, 'function by varying the number of PSO iterations (add/remove inertia and cognitive components)...')
 
-    best_fitnesses_inertia_false = []
-    best_fitnesses_inertia_true = []
-    best_fitnesses_ga = []
-    gen_results_inertia_false = [[] for i in range(num_gen)]
-    gen_results_inertia_true = [[] for i in range(num_gen)]
-    gen_results_ga = [[] for i in range(num_gen)]
-    gen_mean_inertia_false = []
-    gen_mean_inertia_true = []
-    gen_mean_ga = []
-    gen_std_inertia_false = []
-    gen_std_inertia_true = []
-    gen_std_ga = []
+    best_fitness_list_cognitive_false, best_fitness_cognitive_false = run_generic(
+        GA(function, bounds, generations=num_gen, mt_prob=mt_prob, 
+           pso_mutation=True, with_inertia=False, max_iter=1, topology=topology))
+    best_fitness_list_cognitive_true, best_fitness_cognitive_true = run_generic(
+        GA(function, bounds, generations=num_gen, mt_prob=mt_prob, 
+           pso_mutation=True, with_inertia=True, max_iter=10, topology=topology))
+    best_fitness_list_ga, best_fitness_ga = run_generic(
+        GA(function, bounds, generations=num_gen, mt_prob=mt_prob))
 
-    # executing global topology algorithm 30 times
-    ga_pso_inertia_false = GA(function, bounds, generations=num_gen, mt_prob=mt_prob,
-                              pso_mutation=True, with_inertia=False, max_iter=1, topology=topology)
+    results_cognitive_false = group(best_fitness_list_cognitive_false)
+    results_cognitive_true = group(best_fitness_list_cognitive_true)
+    results_ga = group(best_fitness_list_ga)
+    
+    average_fitness = {
+        'cognitive_false': calc_average(results_cognitive_false),
+        'cognitive_true': calc_average(results_cognitive_true),
+        'ga': calc_average(results_ga)
+    }
+    
+    print("Best Fitness - GA-PSO 1 iteration:", best_fitness_cognitive_false)
+    print("Best Fitness - GA-PSO 10 iterations:", best_fitness_cognitive_true)
+    print("Best Fitness - GA:", best_fitness_ga)
 
-    gen_best_fitnesses_inertia_false = np.inf
-    for i in range(num_exec):
-        _, execution_best_fitnesses_inertia_false, _ = ga_pso_inertia_false.run()
-        best_fitnesses_inertia_false.append(execution_best_fitnesses_inertia_false)
-        if gen_best_fitnesses_inertia_false > min(execution_best_fitnesses_inertia_false):
-            gen_best_fitnesses_inertia_false = copy(min(execution_best_fitnesses_inertia_false))
-
-    # executing local topology algorithm 30 times
-    ga_pso_inertia_true = GA(function, bounds, generations=num_gen, mt_prob=mt_prob,
-                             pso_mutation=True, with_inertia=True, max_iter=10, topology=topology)
-
-    gen_best_fitnesses_inertia_true = np.inf
-    for i in range(num_exec):
-        _, execution_best_fitnesses_inertia_true, _ = ga_pso_inertia_true.run()
-        best_fitnesses_inertia_true.append(execution_best_fitnesses_inertia_true)
-        if gen_best_fitnesses_inertia_true > min(execution_best_fitnesses_inertia_true):
-            gen_best_fitnesses_inertia_true = copy(min(execution_best_fitnesses_inertia_true))
-
-    # executing just genetic algorithm
-    ga = GA(function, bounds, generations=num_gen, mt_prob=mt_prob)
-
-    gen_best_fitnesses_ga = np.inf
-    for i in range(num_exec):
-        _, execution_best_fitnesses_ga, _ = ga.run()
-        best_fitnesses_ga.append(execution_best_fitnesses_ga)
-        if gen_best_fitnesses_ga > min(execution_best_fitnesses_ga):
-            gen_best_fitnesses_ga = copy(min(execution_best_fitnesses_ga))
-
-    # grouping results by iteration number
-    for i in range(len(best_fitnesses_inertia_false)):
-        for j in range(len(best_fitnesses_inertia_false[i])):
-            gen_results_inertia_false[j].append(
-                best_fitnesses_inertia_false[i][j])
-            gen_results_inertia_true[j].append(
-                best_fitnesses_inertia_true[i][j])
-            gen_results_ga[j].append(best_fitnesses_ga[i][j])
-
-    # calculating mean and std values by iteration number
-    for i in range(len(gen_results_inertia_false)):
-        gen_mean_inertia_false.append(np.mean(gen_results_inertia_false[i]))
-        gen_std_inertia_false.append(np.std(gen_results_inertia_false[i]))
-
-        gen_mean_inertia_true.append(np.mean(gen_results_inertia_true[i]))
-        gen_std_inertia_true.append(np.std(gen_results_inertia_true[i]))
-
-        gen_mean_ga.append(np.mean(gen_results_ga[i]))
-        gen_std_ga.append(np.std(gen_results_ga[i]))
-
+    print_winner([
+        {'name': 'GA-PSO 1 iteration', 'result': best_fitness_cognitive_false},
+        {'name': 'GA-PSO 10 iterations', 'result': best_fitness_cognitive_true},
+        {'name': 'GA', 'result': best_fitness_ga}])
+    
+    plot_inertia_and_cognitive(function_name, average_fitness, global_minimum)
 
 def main(function_name, function, bounds, global_minimum):
     # population_size(function_name, function, bounds, global_minimum)
     # mutation(function_name, function, bounds, global_minimum)
-    topology_func(function_name, function, bounds, global_minimum)
-    #social(function_name, function, bounds, global_minimum)
+    # topology_func(function_name, function, bounds, global_minimum)
+    inertia_and_cognitive(function_name, function, bounds, global_minimum)
 
 
 if __name__ == "__main__":
