@@ -133,7 +133,7 @@ def calc_average(gen_results_m):
     return average_list
 
 def mutation(function_name, function, bounds, global_minimum):
-    print('Optimizing the mutation', function_name, 'function by varying the mutation strategy...')
+    print('Optimizing the', function_name, 'function by varying the mutation strategy...')
 
     best_fitness_list_no_mutation, best_fitness_no_mutation = run_generic(
         GA(function, bounds, generations=num_gen))
@@ -164,58 +164,30 @@ def mutation(function_name, function, bounds, global_minimum):
     
     plot_mutation(function_name, average_fitness, global_minimum)
 
-
 def topology_func(function_name, function, bounds, global_minimum):
-    print('Optimizing the topology', function_name, 'function...')
+    print('Optimizing the', function_name, 'function by varying the topology...')
 
-    best_fitnesses_g = []
-    best_fitnesses_l = []
-    gen_results_g = [[] for i in range(num_gen)]
-    gen_results_l = [[] for i in range(num_gen)]
-    gen_mean_g = []
-    gen_mean_l = []
-    gen_std_g = []
-    gen_std_l = []
+    best_fitness_list_global, best_fitness_global = run_generic(GA(function, bounds, generations=num_gen, mt_prob=mt_prob,
+                  pso_mutation=True, with_inertia=True))
+    best_fitness_list_local, best_fitness_local = run_generic(GA(function, bounds, generations=num_gen, mt_prob=mt_prob,
+                   pso_mutation=True, with_inertia=True, topology='ring'))
 
-    # executing global topology algorithm 30 times
-    ga_pso_g = GA(function, bounds, generations=num_gen, mt_prob=mt_prob,
-                  pso_mutation=True, with_inertia=True)
+    results_global = group(best_fitness_list_global)
+    results_local = group(best_fitness_list_local)
+    
+    average_fitness = {
+        'global': calc_average(results_global),
+        'local': calc_average(results_local)
+    }
 
-    gen_best_fitnesses_g = np.inf
-    for i in range(num_exec):
-        _, execution_best_fitnesses_g, _ = ga_pso_g.run()
-        best_fitnesses_g.append(execution_best_fitnesses_g)
-        if gen_best_fitnesses_g > min(execution_best_fitnesses_g):
-            gen_best_fitnesses_g = copy(min(execution_best_fitnesses_g))
+    print("Best Fitness - GA-PSO with Global Topology:", best_fitness_global)
+    print("Best Fitness - GA-PSO with Local Topology:", best_fitness_local)
 
-    # executing local topology algorithm 30 times
-    ga_pso__l = GA(function, bounds, generations=num_gen, mt_prob=mt_prob,
-                   pso_mutation=True, with_inertia=True, topology='ring')
-
-    gen_best_fitnesses_l = np.inf
-    for i in range(num_exec):
-        _, execution_best_fitnesses_l, _ = ga_pso__l.run()
-        best_fitnesses_l.append(execution_best_fitnesses_l)
-        if gen_best_fitnesses_l > min(execution_best_fitnesses_l):
-            gen_best_fitnesses_l = copy(min(execution_best_fitnesses_l))
-
-    # grouping results by iteration number
-    for i in range(len(best_fitnesses_g)):
-        for j in range(len(best_fitnesses_g[i])):
-            gen_results_g[j].append(best_fitnesses_g[i][j])
-            gen_results_l[j].append(best_fitnesses_l[i][j])
-
-    # calculating mean and std values by iteration number
-    for i in range(len(gen_results_g)):
-        gen_mean_g.append(np.mean(gen_results_g[i]))
-        gen_std_g.append(np.std(gen_results_g[i]))
-
-        gen_mean_l.append(np.mean(gen_results_l[i]))
-        gen_std_l.append(np.std(gen_results_l[i]))
-
-    print("Best Fitness topology - ga_pso global:", gen_best_fitnesses_g)
-    print("Best Fitness topology - ga_pso local:", gen_best_fitnesses_l)
-
+    print_winner([
+        {'name': 'GA-PSO with Global Topology', 'result': best_fitness_global},
+        {'name': 'GA-PSO with Local Topology', 'result': best_fitness_local}])
+    
+    plot_topology(function_name, average_fitness, global_minimum)
 
 def social(function_name, function, bounds, global_minimum):
     print('Optimizing the social', function_name, 'function...')
@@ -288,8 +260,8 @@ def social(function_name, function, bounds, global_minimum):
 
 def main(function_name, function, bounds, global_minimum):
     # population_size(function_name, function, bounds, global_minimum)
-    mutation(function_name, function, bounds, global_minimum)
-    # topology_func(function_name, function, bounds, global_minimum)
+    # mutation(function_name, function, bounds, global_minimum)
+    topology_func(function_name, function, bounds, global_minimum)
     #social(function_name, function, bounds, global_minimum)
 
 

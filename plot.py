@@ -78,13 +78,15 @@ def plot_mutation(function_name, average_fitness, global_minimum):
         "imgs/" + function_name + "/mutation(" + function_name + ").pdf", bbox_inches='tight')
     print('')
     
-def plot_topology(function_name, gen_mean, global_minimum):
-    upper_limit = max(gen_mean['global'][0], gen_mean['local'][0])
+def plot_topology(function_name, average_fitness, global_minimum):
+    upper_limit = max(average_fitness['global'][0], average_fitness['local'][0])
     plt.rcParams['font.size'] = '16'
     plt.figure(figsize=(12, 9))
     plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean['global'], 'bo', label="Topologia Global")
-    plt.plot(gen_mean['local'], 'rx', label="Topologia Local")
+    plt.xticks([1, 20, 40, 60, 80, 100])  # Set text labels.
+    data_range_complete = np.arange(1, 101)
+    plt.plot(data_range_complete, average_fitness['global'], 'bo', label="Topologia Global")
+    plt.plot(data_range_complete, average_fitness['local'], 'rx', label="Topologia Local")
     plt.title(function_name, fontsize=18)
     plt.ylabel("Fitness Média", fontsize=18)
     plt.xlabel("Geração", fontsize=18)
