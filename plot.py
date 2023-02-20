@@ -62,14 +62,14 @@ def plot_population_size(function_name, global_minimum, ga_results, ga_pso_resul
         "imgs/" + function_name + "/average_distance_over_generations(" + function_name + ").pdf", bbox_inches='tight')
     print('')
 
-def plot_mutation(function_name, gen_mean, global_minimum):
-    upper_limit = max(gen_mean['mutation'][0], gen_mean['no_mutation'][0], gen_mean['pso_mutation'][0])
+def plot_mutation(function_name, average_fitness, global_minimum):
+    upper_limit = max(average_fitness['mutation'][0], average_fitness['no_mutation'][0], average_fitness['pso_mutation'][0])
     plt.rcParams['font.size'] = '16'
     plt.figure(figsize=(12, 9))
     plt.ylim(global_minimum, upper_limit)
-    plt.plot(gen_mean['no_mutation'], 'bo', label="SEM Mutação")
-    plt.plot(gen_mean['mutation'], 'rx', label="COM Mutação")
-    plt.plot(gen_mean['pso_mutation'], 'g+', label="COM Mutação - PSO")
+    plt.plot(average_fitness['no_mutation'], 'bo', label="SEM Mutação")
+    plt.plot(average_fitness['mutation'], 'rx', label="COM Mutação")
+    plt.plot(average_fitness['pso_mutation'], 'g+', label="COM Mutação - PSO")
     plt.title(function_name, fontsize=18)
     plt.ylabel("Fitness Média", fontsize=18)
     plt.xlabel("Geração", fontsize=18)

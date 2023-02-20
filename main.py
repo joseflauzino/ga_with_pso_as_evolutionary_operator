@@ -107,71 +107,62 @@ def population_size(function_name, function, bounds, global_minimum):
     plot_population_size(function_name, global_minimum, ga_results, ga_pso_results)
 
 
-def mutation(function_name, function, bounds, global_minimum):
-    print('Optimizing the mutation', function_name, 'function...')
-
-    best_fitnesses_n = []
-    gen_results_n = [[] for i in range(num_gen)]
-    gen_mean_n = []
-    gen_std_n = []
-
-    best_fitnesses_m = []
-    gen_results_m = [[] for i in range(num_gen)]
-    gen_mean_m = []
-    gen_std_m = []
-
-    best_fitnesses_pso_m = []
-    gen_results_pso_m = [[] for i in range(num_gen)]
-    gen_mean_pso_m = []
-    gen_std_pso_m = []
-
-    ga_no_mutation = GA(function, bounds, generations=num_gen)
-    ga_mutation = GA(function, bounds, generations=num_gen, mt_prob=mt_prob)
-    ga_pso_mutation = GA(function, bounds, generations=num_gen, mt_prob=mt_prob,
-                         pso_mutation=True, with_inertia=True, topology=topology)
-
-    gen_best_fitnesses_n = np.inf
+def run_generic(algorithm_instance):
+    best_fitness_list = []
+    best_fitnesses = np.inf
     for i in range(num_exec):
-        _, execution_best_fitnesses_n, _ = ga_no_mutation.run()
-        best_fitnesses_n.append(execution_best_fitnesses_n)
-        if gen_best_fitnesses_n > min(execution_best_fitnesses_n):
-            gen_best_fitnesses_n = copy(min(execution_best_fitnesses_n))
+        _, exec_best_fitnesses, _ = algorithm_instance.run()
+        best_fitness_list.append(exec_best_fitnesses)
+        if best_fitnesses > min(exec_best_fitnesses):
+            best_fitnesses = copy(min(exec_best_fitnesses))
+    return best_fitness_list, best_fitnesses
 
-    gen_best_fitnesses_m = np.inf
-    for i in range(num_exec):
-        _, execution_best_fitnesses_m, _ = ga_mutation.run()
-        best_fitnesses_m.append(execution_best_fitnesses_m)
-        if gen_best_fitnesses_m > min(execution_best_fitnesses_m):
-            gen_best_fitnesses_m = copy(min(execution_best_fitnesses_m))
-
-    gen_best_fitnesses_pso_m = np.inf
-    for i in range(num_exec):
-        _, execution_best_fitnesses_pso_m, _ = ga_pso_mutation.run()
-        best_fitnesses_pso_m.append(execution_best_fitnesses_pso_m)
-        if gen_best_fitnesses_pso_m > min(execution_best_fitnesses_pso_m):
-            gen_best_fitnesses_pso_m = copy(min(execution_best_fitnesses_pso_m))
-
+def group(best_fitness_list):
     # grouping results by iteration number
-    for i in range(len(best_fitnesses_m)):
-        for j in range(len(best_fitnesses_m[i])):
-            gen_results_m[j].append(best_fitnesses_m[i][j])
-            gen_results_n[j].append(best_fitnesses_n[i][j])
-            gen_results_pso_m[j].append(best_fitnesses_pso_m[i][j])
+    gen_results = [[] for i in range(num_gen)]
+    for i in range(len(best_fitness_list)):
+        for j in range(len(best_fitness_list[i])):
+            gen_results[j].append(best_fitness_list[i][j])
+    return gen_results
 
-    # calculating mean and std values by iteration number
+def calc_average(gen_results_m):
+    # calculating mean values by iteration number
+    average_list = []
     for i in range(len(gen_results_m)):
-        gen_mean_m.append(np.mean(gen_results_m[i]))
-        gen_std_m.append(np.std(gen_results_m[i]))
+        average_list.append(np.mean(gen_results_m[i]))
+    return average_list
 
-        gen_mean_n.append(np.mean(gen_results_n[i]))
-        gen_std_n.append(np.std(gen_results_n[i]))
+def mutation(function_name, function, bounds, global_minimum):
+    print('Optimizing the mutation', function_name, 'function by varying the mutation strategy...')
 
-        gen_mean_pso_m.append(np.mean(gen_results_pso_m[i]))
-        gen_std_pso_m.append(np.std(gen_results_pso_m[i]))
+    best_fitness_list_no_mutation, best_fitness_no_mutation = run_generic(
+        GA(function, bounds, generations=num_gen))
+    best_fitness_list_with_mutation, best_fitness_with_mutation = run_generic(
+        GA(function, bounds, generations=num_gen, mt_prob=mt_prob))
+    best_fitness_list_pso_mutation, best_fitness_pso_mutation = run_generic(
+        GA(function, bounds, generations=num_gen, mt_prob=mt_prob, 
+           pso_mutation=True, with_inertia=True, topology=topology))
 
-    print("Best Fitness mutation - ga no mutation:", gen_best_fitnesses_n)
-    print("Best Fitness mutation - ga with mutation:", gen_best_fitnesses_m)
-    print("Best Fitness mutation - ga_pso mutation:", gen_best_fitnesses_pso_m)
+    results_no_mutation = group(best_fitness_list_no_mutation)
+    results_with_mutation = group(best_fitness_list_with_mutation)
+    results_pso_mutation = group(best_fitness_list_pso_mutation)
+    
+    average_fitness = {
+        'no_mutation': calc_average(results_no_mutation),
+        'mutation': calc_average(results_with_mutation),
+        'pso_mutation': calc_average(results_pso_mutation)
+    }
+    
+    print("Best Fitness - GA with no mutation:", best_fitness_no_mutation)
+    print("Best Fitness - GA with mutation:", best_fitness_with_mutation)
+    print("Best Fitness - GA with PSO mutation:", best_fitness_pso_mutation)
+
+    print_winner([
+        {'name': 'GA with no mutation', 'result': best_fitness_no_mutation},
+        {'name': 'GA with mutation', 'result': best_fitness_with_mutation},
+        {'name': 'GA with PSO mutation', 'result': best_fitness_pso_mutation}])
+    
+    plot_mutation(function_name, average_fitness, global_minimum)
 
 
 def topology_func(function_name, function, bounds, global_minimum):
@@ -296,8 +287,8 @@ def social(function_name, function, bounds, global_minimum):
 
 
 def main(function_name, function, bounds, global_minimum):
-    population_size(function_name, function, bounds, global_minimum)
-    # mutation(function_name, function, bounds, global_minimum)
+    # population_size(function_name, function, bounds, global_minimum)
+    mutation(function_name, function, bounds, global_minimum)
     # topology_func(function_name, function, bounds, global_minimum)
     #social(function_name, function, bounds, global_minimum)
 
